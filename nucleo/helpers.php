@@ -4,12 +4,25 @@
 require_once __DIR__ . '/Crypto.php';
 
 function base_url(): string {
+    // 1. Detectar si el protocolo es Seguro (HTTPS)
+    // Render usa 'HTTP_X_FORWARDED_PROTO' para avisar que es HTTPS
+    $isSecure = false;
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') $isSecure = true;
+    elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') $isSecure = true;
+    
+    $protocol = $isSecure ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'];
-    $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-    return "http://{$host}{$path}";
+    
+    // 2. Obtener la subcarpeta de forma dinámica
+    // En XAMPP devolverá /TuLook360, en Render devolverá vacío
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $path = ($scriptDir === '/') ? '' : $scriptDir;
+    
+    return "{$protocol}://{$host}{$path}";
 }
 
 function asset(string $ruta): string {
+    // Asegura que no haya doble barra al concatenar
     return base_url() . '/' . ltrim($ruta, '/');
 }
 
