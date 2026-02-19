@@ -256,14 +256,22 @@ try {
             .nav-actions { display: none; } /* Ocultamos botones de PC */
             .mobile-login { display: block !important; }
 
-            /* 2. HERO MÓVIL: Más alto y con contenido centrado hacia abajo */
+            /* 2. HERO MÓVIL: Diseño Universal Fluido */
             .hero { 
-                height: 75vh !important; /* Hacemos que crezca verticalmente */
-                border-radius: 0 0 40px 40px; /* Redondeado más suave en móvil */
-                padding: 0 20px;
-                /* Empujamos el contenido hacia abajo para que no choque con el logo */
-                justify-content: flex-end; 
-                padding-bottom: 80px; 
+                /* Quitamos la altura fija. Usamos 'auto' para que crezca si el celular es pequeño */
+                height: auto !important; 
+                /* Le decimos que como mínimo ocupe el 85% de la pantalla, pero si necesita más, que crezca */
+                min-height: 75vh; 
+                border-radius: 0 0 40px 40px; 
+                
+                /* EL TRUCO ESTÁ EN EL PADDING: 
+                   120px arriba (Evita que choque con el navbar)
+                   20px a los lados
+                   60px abajo (Respira sobre la siguiente sección) */
+                padding: 90px 20px 60px 20px !important; 
+                
+                /* Centramos el contenido verticalmente en lugar de empujarlo desde abajo */
+                justify-content: center !important; 
             }
 
             /* 3. AJUSTE DE TEXTOS: Para que no se amontonen */
