@@ -11,6 +11,9 @@ try {
     $db = new Database();
     $modelo = new PublicoModelo($db->getConnection());
     
+    // --- ESTA ES LA LÍNEA MÁGICA: PEDIMOS LOS LOGOS DIRECTAMENTE ---
+    $logosNegocios = $modelo->obtenerLogosNegocios() ?: []; 
+    
     // Aleatoriedad para la vitrina (RAND)
     $servicios = $modelo->obtenerServiciosHome('') ?: [];
     $servicios = array_slice($servicios, 0, 6); 
@@ -66,21 +69,6 @@ try {
         }
         .btn-register:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
 
-        /* --- 1.2 HERO (PORTADA PC) --- */
-        .hero { 
-            height: 75vh; 
-            background: linear-gradient(135deg, rgba(30,39,46,0.9) 0%, rgba(30,39,46,0.6) 100%), 
-                        url('https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 0 20px; color: var(--white);
-            border-bottom-right-radius: 50px; border-bottom-left-radius: 50px;
-            position: relative; 
-            /* Quitamos overflow hidden para que la burbuja pueda salir si es necesario */
-            /* overflow: hidden;  <-- ELIMINADO */
-            transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
         .hero-content-wrapper {
             transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             width: 100%; max-width: 800px; z-index: 10;
@@ -88,324 +76,333 @@ try {
             position: relative; /* Para que la burbuja se posicione respecto a esto */
         }
 
-        /* ESTADO BUSCANDO (PC) */
-        .hero.searching .hero-content-wrapper {
-            transform: translateX(-22vw);
-            width: 45%; 
+        /* 1. Mejorar el Hero con un degradado más profundo para que el texto resalte */
+        .hero { 
+            height: 75vh; 
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.4) 100%), 
+                        url('https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 0 20px; color: var(--white);
+            border-bottom-right-radius: 60px; /* Curva más moderna */
+            border-bottom-left-radius: 60px;
+            position: relative; transition: 0.6s;
         }
 
-        .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 15px; font-weight: 800; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 40px; max-width: 600px; font-weight: 300; }
-
-        /* BUSCADOR */
-        .search-container {
-            background: var(--white); padding: 6px; border-radius: 50px; 
-            display: flex; width: 100%; max-width: 600px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform: translateY(0); transition: 0.3s;
-            position: relative;
-            z-index: 20; /* Encima de la burbuja al inicio */
-        }
-        .search-container:focus-within { transform: translateY(-5px); box-shadow: 0 25px 60px rgba(255, 51, 102, 0.2); }
-        
-        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 1; }
-        
-        .search-input { 
-            flex: 1; border: none; padding: 15px 20px 15px 45px; font-size: 1.1rem; 
-            outline: none; border-radius: 50px; color: var(--dark); min-width: 0; 
-        }
-        
-        .search-clear {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: #eee; border: none; width: 30px; height: 30px; border-radius: 50%;
-            cursor: pointer; color: #666; display: none; align-items: center; justify-content: center;
-            transition: 0.2s;
-        }
-        .search-clear:hover { background: var(--primary); color: white; }
-
-        /* --- 1.3 PANEL DE RESULTADOS (PC - LATERAL) --- */
-        .live-results-panel {
-            position: absolute; 
-            top: 80px; right: -50%; width: 45%; height: calc(100% - 100px);
-            background: transparent; 
-            padding: 25px; overflow-y: auto; z-index: 5; 
-            opacity: 0; transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex; flex-direction: column; gap: 15px; margin-right: 5%;
-        }
-        .hero.searching .live-results-panel { right: 0; opacity: 1; }
-        .live-results-panel h3 { color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-weight: 700; }
-        .live-results-panel #sinResultados { color: #fff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-
-        /* Grid de 3 columnas para resultados */
-        /* 1. Cuadrícula de 3 columnas para los resultados */
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 Columnas */
-            gap: 15px;
-            padding: 10px;
+        /* 2. Etiqueta "La Plataforma #1" con estilo de cristal */
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: fadeInDown 0.8s ease-out;
         }
 
-        /* 2. Tarjeta con diseño vertical */
-        .mini-card {
-            display: flex; 
-            flex-direction: column; /* Imagen arriba, texto abajo */
-            background: #fff; 
-            border-radius: 16px; 
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-            border: 1px solid #eee;
-            cursor: pointer; 
-            transition: 0.3s;
-            animation: slideInUp 0.4s ease forwards;
-            opacity: 0; transform: translateY(20px);
-            text-align: center; /* Todo el texto centrado */
-        }
-        .mini-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
-        @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
-
-        /* 3. Contenedor de imagen (Fondo blanco para los espacios sobrantes) */
-        .mini-img-wrapper { 
-            position: relative; 
-            width: 100%; 
-            height: 150px; /* Altura fija para que todas las tarjetas midan lo mismo */
-            background: #fcfcfc; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mini-img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; /* SE VE TODA LA IMAGEN SIN RECORTAR */
-        }
-        
-        /* 4. Precio en la esquina superior derecha de la foto */
-        .mini-price-tag {
-            position: absolute; 
-            top: 10px; 
-            right: 10px;
-            background: var(--primary); 
-            color: #fff;
-            padding: 5px 10px; 
-            border-radius: 8px;
+        /* 3. Título con sombra de texto elegante */
+        .hero h1 { 
+            font-size: clamp(2.5rem, 5vw, 3.8rem); 
+            line-height: 1.1; 
+            margin-bottom: 20px; 
             font-weight: 800; 
-            font-size: 0.85rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease-out;
         }
 
-        /* 5. Información del nombre y negocio */
-        .mini-info { padding: 12px; }
-        .mini-info h4 { 
-            font-size: 0.95rem; 
-            margin: 0 0 6px; 
-            color: var(--dark); 
-            font-weight: 800; 
-            line-height: 1.2;
-        }
-        .mini-biz-info { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 5px;
-            font-size: 0.7rem; 
-            color: #999; 
-            text-transform: uppercase; 
-            font-weight: 700; 
+        /* 4. Subtítulo con retraso en la animación */
+        .hero p { 
+            font-size: 1.2rem; opacity: 0.9; margin-bottom: 35px; 
+            max-width: 550px; font-weight: 300; 
+            animation: fadeInUp 1.2s ease-out;
         }
 
-        /* --- 1.4 RESTO DEL SITIO --- */
-        .categories-wrapper { margin-top: -30px; position: relative; z-index: 10; padding: 0 5%; }
-        .cat-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; justify-content: center; scrollbar-width: none; }
-        .cat-scroll::-webkit-scrollbar { display: none; }
-        .cat-pill { 
-            background: var(--white); padding: 12px 25px; border-radius: 50px; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px;
-            cursor: pointer; transition: 0.3s; font-weight: 700; color: var(--dark); border: 1px solid transparent;
-        }
-        .cat-pill i { color: var(--primary); font-size: 1.1rem; }
-        .cat-pill:hover { transform: translateY(-5px); border-color: var(--primary); color: var(--primary); }
-
-        .section-box { padding: 50px 5%; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .section-title { font-size: 1.8rem; font-weight: 800; color: var(--dark); margin: 0; }
-        .section-link { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
-        .card-scroller { display: flex; overflow-x: auto; gap: 20px; padding: 10px 5px 40px 5px; scroll-snap-type: x mandatory; }
-        .card { flex: 0 0 280px; background: var(--white); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.06); transition: 0.3s; scroll-snap-align: start; position: relative; overflow: hidden; border: 1px solid #eee; cursor: pointer; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
-        .card-img-wrap { height: 180px; position: relative; overflow: hidden; background: #f8f9fa; }
-        .fade-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease-in-out; z-index: 1; }
-        .fade-img.visible { opacity: 1; z-index: 2; }
-        .card-img-wrap.contain .fade-img { object-fit: contain; padding: 15px; }
-        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); color: var(--dark); border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; opacity: 1; transition: 0.2s; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .carousel-arrow:active, .carousel-arrow:hover { background: var(--primary); color: white; }
-        .arrow-prev { left: 10px; } .arrow-next { right: 10px; }
-        .card-badge { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; color: var(--dark); display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .card-content { padding: 15px; }
-        .card-biz { font-size: 0.75rem; color: #999; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .card-name { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin: 0 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee; }
-        .card-price { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
-        .btn-card { background: var(--dark); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 0.8rem; }
-        .card:hover .btn-card { background: var(--primary); transform: rotate(90deg); }
-
-
-        /* Estilo para el botón de registro de cliente en el Hero */
+        /* 5. Botón con efecto de brillo */
         .btn-cta-user {
             background: var(--primary);
             color: white !important;
-            padding: 12px 30px;
+            padding: 16px 45px;
             border-radius: 50px;
             font-weight: 700;
-            display: inline-block;
-            margin-bottom: 25px;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(255, 51, 102, 0.3);
+            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(255, 51, 102, 0.4);
+            transition: 0.4s;
+            animation: fadeInUp 1.4s ease-out;
         }
+
         .btn-cta-user:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 15px 30px rgba(255, 51, 102, 0.5); 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 35px rgba(255, 51, 102, 0.6);
         }
+
+        /* 6. Estrellas de confianza (Nuevo) */
+        .hero-trust {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 2s ease-in;
+        }
+        .hero-trust i { color: #f1c40f; }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 901px) {
+            #menuMovil {
+                display: none !important;
+            }
+        }
+
 
         /* =============================================================================
-           SECCIÓN RESPONSIVE (MÓVIL) - ESTILO "BURBUJA DE PENSAMIENTO"
+           SECCIÓN HISTORIA Y ALIADOS (PC PREMIUM)
            ============================================================================= */
+        .seccion-historia {
+            padding: 100px 5%; background-color: #ffffff; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative;
+        }
+        .historia-container {
+            display: flex; max-width: 1200px; width: 100%; gap: 80px; align-items: center;
+        }
+
+        /* Lado Derecho: Textos */
+        .historia-texto { flex: 1; padding-right: 20px; }
+        .historia-badge {
+            background: rgba(255, 51, 102, 0.1); color: var(--primary);
+            padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 20px;
+        }
+        .historia-texto h2 { font-size: 3rem; color: var(--dark); margin-top: 0; margin-bottom: 20px; line-height: 1.1; font-weight: 800; letter-spacing: -1px; }
+        .historia-texto p { font-size: 1.15rem; color: #555; line-height: 1.8; margin-bottom: 20px; font-weight: 400; }
+
+        /* Lado Izquierdo: Muro de Doble Columna */
+        .historia-logos-wrap {
+            flex: 1; height: 480px; overflow: hidden; position: relative;
+            display: flex; justify-content: center; gap: 20px;
+            /* Máscara de desvanecimiento suave (difumina arriba y abajo) */
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+        }
+
+        .logos-column {
+            display: flex; flex-direction: column; gap: 20px;
+            width: max-content;
+        }
+        
+        /* Direcciones opuestas */
+        .column-up { animation: scrollVerticalUp 40s linear infinite; }
+        .column-down { animation: scrollVerticalDown 40s linear infinite; }
+
+        /* Pausar ambas al pasar el mouse */
+        .historia-logos-wrap:hover .logos-column { animation-play-state: paused; }
+
+        @keyframes scrollVerticalUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); } 
+        }
+        @keyframes scrollVerticalDown {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0); } 
+        }
+
+        /* Diseño de Píldoras Refinado */
+        .logo-pill {
+            display: flex; align-items: center; gap: 15px;
+            background: #ffffff; padding: 8px 20px 8px 8px;
+            border-radius: 50px; border: 1px solid #f0f2f5;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            width: 250px; /* Ancho fijo para alineación perfecta */
+        }
+        .logo-pill:hover {
+            transform: scale(1.05); 
+            box-shadow: 0 15px 35px rgba(255, 51, 102, 0.15);
+            border-color: rgba(255, 51, 102, 0.3);
+        }
+        .pill-img {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #fff; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 1px solid #f0f0f0; flex-shrink: 0; padding: 4px;
+        }
+        .pill-img img { width: 100%; height: 100%; object-fit: contain; }
+        .pill-name { 
+            font-weight: 800; font-size: 0.95rem; color: var(--dark); 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        /* =============================================================================
+        SECCIÓN RESPONSIVE (MÓVIL) - OPTIMIZADO PARA IPHONE 12 PRO / MÓVILES
+        ============================================================================= */
         @media (max-width: 900px) {
-            /* 1. AJUSTES BÁSICOS */
-            .navbar { padding: 15px 20px; z-index: 200; }
-            .nav-actions { display: none; }
-            .hero { height: 60vh; border-radius: 0 0 30px 30px; padding: 0 15px; position: relative; }
+            /* 1. NAVBAR MÓVIL: Más compacta */
+            .navbar { padding: 15px 5%; }
+            .nav-actions { display: none; } /* Ocultamos botones de PC */
             .mobile-login { display: block !important; }
-            
-            /* 2. CERO MOVIMIENTO: DESACTIVAR ANIMACIONES DEL HERO EN MÓVIL */
-            /* El texto NO desaparece, el buscador NO se mueve. Todo quieto. */
-            .hero.searching .hero-content-wrapper {
-                transform: none !important;
-                width: 100% !important;
-            }
-            .hero.searching .hero-content-wrapper > * {
-                opacity: 1 !important;
-                visibility: visible !important;
-                display: block !important;
+
+            /* 2. HERO MÓVIL: Más alto y con contenido centrado hacia abajo */
+            .hero { 
+                height: 75vh !important; /* Hacemos que crezca verticalmente */
+                border-radius: 0 0 40px 40px; /* Redondeado más suave en móvil */
+                padding: 0 20px;
+                /* Empujamos el contenido hacia abajo para que no choque con el logo */
+                justify-content: flex-end; 
+                padding-bottom: 80px; 
             }
 
-            /* 3. EL BUSCADOR: SE QUEDA DONDE ESTÁ */
-            /* No usamos fixed ni absolute raros. Se queda en su flujo natural. */
-            .search-container {
-                position: relative;
-                z-index: 100 !important; /* Alto para que se pueda clickear */
-                width: 100%; /* Ancho completo del contenedor padre */
-                transform: none !important; /* Asegurar que no se mueva */
+            /* 3. AJUSTE DE TEXTOS: Para que no se amontonen */
+            .hero-content-wrapper {
+                width: 100%;
+                max-width: 100%;
             }
 
-            /* 4. LA BURBUJA DE RESULTADOS (POPOVER) */
-            /* Nace DESDE el buscador */
-            .live-results-panel {
-                /* Configuración de "Burbuja Flotante" */
-                position: absolute !important;
-                top: 5% !important; /* Justo debajo del buscador */
-                left: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                max-height: 390px; /* Altura máxima con scroll */
-                
-                /* Estilo Cajita Blanca */
-                background: #ffffff !important;
-                border-radius: 15px !important;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-                border: 1px solid #eee;
-                
-                padding: 15px !important;
-                margin-top: 15px !important; /* Separación pequeña del buscador */
-                z-index: 200 !important; /* Encima del buscador y todo lo demás */
-                
+            .hero h1 { 
+                font-size: 2.6rem !important; /* Tamaño ideal para lectura en mano */
+                line-height: 1.1;
+                margin-bottom: 15px;
+            }
+
+            .hero p { 
+                font-size: 1.1rem !important; 
+                margin-bottom: 30px; 
+                padding: 0 10px; /* Evita que el texto toque los bordes laterales */
+            }
+
+            /* 4. BOTÓN MÓVIL: Un poco más grande para el pulgar */
+            .btn-cta-user {
+                width: 100%; /* El botón ocupa todo el ancho disponible */
+                max-width: 300px;
+                padding: 18px 20px;
+                font-size: 1rem;
+            }
+
+            /* 5. ETIQUETA SUPERIOR (Badge) */
+            .hero-badge {
+                font-size: 0.65rem;
+                padding: 6px 15px;
+                margin-bottom: 15px;
+            }
+
+            /* 6. ESTRELLAS DE CONFIANZA */
+            .hero-trust {
+                margin-top: 20px;
+                justify-content: center;
+                font-size: 0.8rem;
+            }
+
+
+            /* --- MENÚ FULLSCREEN ESTILO APP PREMIUM (SOLO MÓVIL) --- */
+            .menu-fullscreen {
+                position: fixed;
+                top: 0; left: 0;
+                width: 100%; height: 100vh;
+                background: rgba(15, 23, 42, 0.75); /* Transparente para que se vea el fondo */
+                backdrop-filter: blur(20px); /* Desenfoque fuerte (Efecto cristal real) */
+                -webkit-backdrop-filter: blur(20px); /* Soporte para iPhone */
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                padding: 30px 25px;
                 opacity: 0;
                 visibility: hidden;
-                transform: translateY(-10px); /* Efecto de salir suave */
-                transition: all 0.3s ease;
-                
-                /* Resetear estilos de PC */
-                right: auto !important;
+                transform: translateY(-20px);
+                transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             }
 
-            /* FLECHITA DE LA BURBUJA (Opcional, estilo "bocadillo") */
-            .live-results-panel::before {
-                content: '';
-                position: absolute;
-                top: -8px; left: 50%; transform: translateX(-50%);
-                border-left: 8px solid transparent;
-                border-right: 8px solid transparent;
-                border-bottom: 8px solid #ffffff;
+            .menu-fullscreen.activo {
+                opacity: 1; visibility: visible; transform: translateY(0);
             }
 
-            /* MOSTRAR LA BURBUJA */
-            .hero.searching .live-results-panel {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
+            /* Cabecera del menú */
+            .menu-header {
+                display: flex; justify-content: space-between; align-items: center;
+                width: 100%; margin-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 20px;
             }
 
-            /* ESTILOS DENTRO DE LA BURBUJA */
-            .live-results-panel h3 { 
-                text-align: center; color: #2d3436 !important; 
-                font-size: 1rem; margin-bottom: 10px;
-                text-shadow: none !important;
+            .cerrar-menu {
+                background: rgba(255,255,255,0.1); border: none; color: var(--white);
+                width: 45px; height: 45px; border-radius: 50%;
+                font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+                cursor: pointer; transition: 0.3s;
             }
 
-            /* Agrega esto dentro de tu @media (max-width: 900px) */
-            /* REEMPLAZO EXACTO DE CUADRÍCULA Y TARJETA */
-            .results-grid {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important; /* 2 Columnas */
-                gap: 10px !important;
+            /* Tarjetas de opciones */
+            .menu-links {
+                display: flex; flex-direction: column; gap: 15px; width: 100%;
             }
-            .mini-card {
-                background: #fff !important;
-                padding: 0 !important;
-                border: 1px solid #eee !important;
-                border-radius: 12px !important;
-                flex-direction: column !important; /* Imagen arriba */
-                text-align: center !important;
-                overflow: hidden !important;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+
+            .menu-links a {
+                background: rgba(255, 255, 255, 0.05); /* Fondo de tarjeta sutil */
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 20px; border-radius: 20px;
+                color: var(--white) !important; font-size: 1.2rem; font-weight: 600;
+                text-decoration: none; display: flex !important; align-items: center; gap: 15px;
             }
-            .mini-img-wrapper {
-                position: relative !important;
-                width: 100% !important;
-                height: 100px !important;
-                background: #fcfcfc !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+
+            .menu-links a i { font-size: 1.4rem; opacity: 0.8; }
+
+            /* Destacar la opción de Negocio */
+            .menu-links .link-destacado {
+                background: rgba(255, 51, 102, 0.1) !important; /* Fondo rosado muy suave */
+                border-color: rgba(255, 51, 102, 0.4) !important;
+                color: var(--primary) !important;
             }
-            .mini-img {
-                max-width: 100% !important;
-                max-height: 100% !important;
-                object-fit: contain !important; /* Imagen completa */
-            }
-            .mini-price-tag {
-                position: absolute !important;
-                top: 5px !important;
-                right: 5px !important;
-                background: var(--primary) !important;
-                color: #fff !important;
-                padding: 2px 6px !important;
-                border-radius: 6px !important;
-                font-weight: 800 !important;
-                font-size: 0.7rem !important;
-            }
-            .mini-info { padding: 8px !important; }
-            .mini-info h4 { font-size: 0.8rem !important; margin: 0 !important; line-height: 1.1 !important; }
-            .mini-biz-info { 
-                display: flex !important; align-items: center !important; justify-content: center !important; 
-                gap: 3px !important; font-size: 0.6rem !important; margin-top: 4px !important; color: #888 !important; 
-            }
+            .menu-links .link-destacado i { color: var(--primary); opacity: 1; }
+
+
             
-            /* SCROLLBAR MÓVIL DENTRO DE LA BURBUJA */
-            .live-results-panel::-webkit-scrollbar { display: none; }
+            /* =============================================================================
+               SECCIÓN HISTORIA (MÓVIL)
+               ============================================================================= */
+            .seccion-historia { padding: 50px 0 20px 0; }
+            .historia-container { flex-direction: column-reverse; gap: 40px; }
             
-            /* Ajustes Generales */
-            .cat-scroll { justify-content: flex-start; padding-left: 20px; }
-            .categories-wrapper { margin-top: -25px; padding: 0; position:relative; z-index: 50; }
-            .card { flex: 0 0 240px; }
+            .historia-texto { padding: 0 25px; text-align: center; }
+            .historia-texto h2 { font-size: 2.2rem; }
+            .historia-badge { margin-bottom: 15px; font-size: 0.75rem; }
+
+            /* Convertimos las columnas verticales en 2 filas horizontales */
+            .historia-logos-wrap {
+                height: auto; width: 100%; flex-direction: column; gap: 15px;
+                -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+                mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            }
+            .logos-column {
+                flex-direction: row; width: max-content;
+            }
+            .column-up { animation: scrollHorizontalLeft 40s linear infinite; }
+            .column-down { animation: scrollHorizontalRight 40s linear infinite; }
+
+            @keyframes scrollHorizontalLeft {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            @keyframes scrollHorizontalRight {
+                0% { transform: translateX(-50%); }
+                100% { transform: translateX(0); }
+            }
+
+            /* Ajustes tamaño móvil */
+            .logo-pill { width: 220px; padding: 5px 15px 5px 5px; } 
+            .pill-img { width: 40px; height: 40px; }
+            .pill-name { font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -418,241 +415,188 @@ try {
             <a href="<?= ruta_accion('auth', 'registroCliente', [], false) ?>" style="margin-left:20px; font-weight:600; color:white;">Crear Cuenta</a> 
             <a href="<?= ruta_accion('auth', 'registro', [], false) ?>" class="btn-register">Registrar Negocio</a> </div>
         </div>
-        <a href="<?= ruta_vista('login.php', [], false) ?>" style="color:white; font-size:1.5rem; display:none;" class="mobile-login"><i class="fa-solid fa-circle-user"></i></a>
+
+        <a href="javascript:void(0);" style="color:white; font-size:1.5rem; display:none;" class="mobile-login" id="btnMenuMovil"><i class="fa-solid fa-bars"></i></a>
     </nav>
 
     <header class="hero" id="hero-section">
         <div class="hero-content-wrapper">
-            <span style="text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; font-weight:700; color:var(--primary); margin-bottom:10px;">La Plataforma #1 de Belleza</span>
-            <h1>Reserva tu próximo <br>Look Perfecto</h1>
-            <p>Encuentra barberías, salones y spas cerca de ti.</p>
-            <a href="<?= ruta_accion('auth', 'registroCliente', [], false) ?>" class="btn-cta-user">¡Únete ahora y reserva! ✨</a>
+            <div class="hero-badge">La Plataforma #1 de Belleza</div>
             
-            <div class="search-container" id="search-box">
-                <i class="fa-solid fa-search search-icon"></i>
-                <input type="text" id="inputBusqueda" class="search-input" placeholder="¿Qué buscas? (Ej: Corte, Uñas...)" autocomplete="off">
-                <button type="button" id="btnBorrarBusqueda" class="search-clear"><i class="fa-solid fa-xmark"></i></button>
-                
-                </div>
-        </div>
+            <h1>Encuentra tu estilo <br> Reserva tu momento</h1>
+            
+            <p>Los mejores profesionales de la ciudad listos para transformar tu look con un solo clic.</p>
+            
+            <a href="<?= ruta_accion('auth', 'registroCliente', [], false) ?>" class="btn-cta-user">
+                ¡Únete ahora y reserva! ✨
+            </a>
 
-        <div class="live-results-panel" id="panelResultados">
-            <h3 style="margin-top:0; font-size:1.2rem; color:var(--dark);">Resultados</h3>
-            <div class="results-grid" id="gridResultados"></div>
-            <div id="sinResultados" style="display:none; text-align:center; padding:20px; color:#888;">
-                No encontramos coincidencias. 😔
+            <div class="hero-trust">
+                <div>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <span>+500 servicios reservados hoy</span>
             </div>
         </div>
     </header>
 
-    <div class="categories-wrapper">
-        <div class="cat-scroll">
-            <div class="cat-pill"><i class="fa-solid fa-scissors"></i> Barbería</div>
-            <div class="cat-pill"><i class="fa-solid fa-wand-magic-sparkles"></i> Peluquería</div>
-            <div class="cat-pill"><i class="fa-solid fa-hand-holding-heart"></i> Manicure</div>
-            <div class="cat-pill"><i class="fa-solid fa-spa"></i> Spa & Relax</div>
-            <div class="cat-pill"><i class="fa-solid fa-eye"></i> Cejas</div>
+
+    <div class="menu-fullscreen" id="menuMovil">
+        
+        <div class="menu-header">
+            <a href="#" class="brand"><i class="fa-solid fa-scissors" style="color:var(--primary)"></i> TuLook<span>360</span></a>
+            <button class="cerrar-menu" id="btnCerrarMenu"><i class="fa-solid fa-xmark"></i></button>
         </div>
+
+        <div class="menu-links">
+            <a href="<?= ruta_vista('login.php', [], false) ?>">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
+            </a> 
+            <a href="<?= ruta_accion('auth', 'registroCliente', [], false) ?>">
+                <i class="fa-solid fa-user-plus"></i> Crear Cuenta
+            </a> 
+            <a href="<?= ruta_accion('auth', 'registro', [], false) ?>" class="link-destacado">
+                <i class="fa-solid fa-store"></i> Registrar Negocio
+            </a>
+        </div>
+        
     </div>
 
-    <section class="section-box">
-        <div class="section-header">
-            <h2 class="section-title">Recomendados 🔥</h2>
-            <a href="<?= ruta_vista('login.php') ?>" class="section-link">Ver todo</a>
-        </div>
-        <div class="card-scroller">
-            <?php foreach($servicios as $s): ?>
-            <div class="card fade-carousel-card" onclick="location.href='<?= ruta_vista('login.php') ?>'">
-                <div class="card-img-wrap contain"> 
-                    <?php if (empty($s['imagenes'])): ?>
-                        <img src="https://via.placeholder.com/300x200?text=Sin+Foto" class="fade-img visible">
-                    <?php else: ?>
-                        <?php foreach ($s['imagenes'] as $i => $img): ?>
-                            <img src="<?= $img ?>" class="fade-img <?= $i === 0 ? 'visible' : '' ?>">
-                        <?php endforeach; ?>
+
+    <!-- INICIO SECCION HISTORIO -->
+
+    <section class="seccion-historia">
+        <div class="historia-container">
+            
+            <div class="historia-logos-wrap">
+                
+                <div class="logos-column column-up">
+                    <?php if (!empty($logosNegocios)): ?>
+                        <?php 
+                        // Multiplicamos por 6 para asegurar la ilusión perfecta infinita
+                        for($i=0; $i<6; $i++): 
+                            foreach($logosNegocios as $negocio): 
+                                $logoUrl = !empty($negocio['neg_logo']) ? $negocio['neg_logo'] : 'recursos/img/sin_foto.png';
+                        ?>
+                            <div class="logo-pill" title="<?= htmlspecialchars($negocio['neg_nombre']) ?>">
+                                <div class="pill-img"><img src="<?= $logoUrl ?>" alt="" loading="lazy"></div>
+                                <span class="pill-name"><?= htmlspecialchars($negocio['neg_nombre']) ?></span>
+                            </div>
+                        <?php endforeach; endfor; ?>
                     <?php endif; ?>
-                    <?php if (count($s['imagenes'] ?? []) > 1): ?>
-                        <button class="carousel-arrow arrow-prev"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="carousel-arrow arrow-next"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="logos-column column-down">
+                    <?php if (!empty($logosNegocios)): ?>
+                        <?php 
+                        for($i=0; $i<6; $i++): 
+                            // array_reverse para que la segunda columna tenga un orden distinto
+                            foreach(array_reverse($logosNegocios) as $negocio): 
+                                $logoUrl = !empty($negocio['neg_logo']) ? $negocio['neg_logo'] : 'recursos/img/sin_foto.png';
+                        ?>
+                            <div class="logo-pill" title="<?= htmlspecialchars($negocio['neg_nombre']) ?>">
+                                <div class="pill-img"><img src="<?= $logoUrl ?>" alt="" loading="lazy"></div>
+                                <span class="pill-name"><?= htmlspecialchars($negocio['neg_nombre']) ?></span>
+                            </div>
+                        <?php endforeach; endfor; ?>
                     <?php endif; ?>
-                    <div class="card-badge"><i class="fa-regular fa-clock"></i> <?= $s['serv_duracion'] ?> min</div>
                 </div>
-                <div class="card-content">
-                    <div class="card-biz"><?= htmlspecialchars($s['neg_nombre']) ?></div>
-                    <h3 class="card-name"><?= htmlspecialchars($s['serv_nombre']) ?></h3>
-                    <div class="card-footer">
-                        <span class="card-price">$<?= number_format($s['serv_precio'], 2) ?></span>
-                        <div class="btn-card"><i class="fa-solid fa-arrow-right"></i></div>
-                    </div>
-                </div>
+
             </div>
-            <?php endforeach; ?>
+
+            <div class="historia-texto">
+                <span class="historia-badge">Nuestra Red de Aliados</span>
+                <h2>Nacimos para <span style="color: var(--primary);">conectar</span> tu estilo.</h2>
+                <p>Todo empezó con una frustración común: perder horas llamando a salones o esperando turnos sin saber a qué hora nos atenderían.</p>
+                <p>Sabemos que los profesionales de la belleza son artistas increíbles. Por eso, nos asociamos con las mejores marcas y barberías de la ciudad.</p>
+                <p><strong>TuLook360</strong> es el puente directo entre tú y estos expertos. Ahora, reservar tu próximo tratamiento es tan fácil como pedir un taxi.</p>
+            </div>
+
         </div>
     </section>
-
-    <section class="section-box" style="padding-top:0;">
-        <div class="section-header">
-            <h2 class="section-title">Tienda Online 🛍️</h2>
-            <a href="<?= ruta_vista('login.php') ?>" class="section-link">Ver productos</a>
-        </div>
-        <div class="card-scroller">
-            <?php foreach($productos as $p): ?>
-            <div class="card fade-carousel-card" onclick="location.href='<?= ruta_vista('login.php') ?>'">
-                <div class="card-img-wrap contain">
-                    <?php if (empty($p['imagenes'])): ?>
-                        <img src="https://via.placeholder.com/300x200?text=Sin+Foto" class="fade-img visible">
-                    <?php else: ?>
-                        <?php foreach ($p['imagenes'] as $i => $img): ?>
-                            <img src="<?= $img ?>" class="fade-img <?= $i === 0 ? 'visible' : '' ?>">
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    <?php if (count($p['imagenes'] ?? []) > 1): ?>
-                        <button class="carousel-arrow arrow-prev"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="carousel-arrow arrow-next"><i class="fa-solid fa-chevron-right"></i></button>
-                    <?php endif; ?>
-                    <div class="card-badge" style="background:#e1ffe1; color:#00b894;">En Stock</div>
-                </div>
-                <div class="card-content">
-                    <div class="card-biz"><?= htmlspecialchars($p['neg_nombre']) ?></div>
-                    <h3 class="card-name"><?= htmlspecialchars($p['pro_nombre']) ?></h3>
-                    <div class="card-footer">
-                        <span class="card-price">$<?= number_format($p['pro_precio'], 2) ?></span>
-                        <div class="btn-card"><i class="fa-solid fa-cart-plus"></i></div>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </section>
-
-    <div class="b2b-banner" style="margin:40px 5%; background:var(--dark); border-radius:30px; padding:50px; text-align:center; color:white;">
-        <h2 style="font-family:'Kalam'; font-size:2.5rem; color:var(--primary);">¿Tienes un negocio?</h2>
-        <p>Gestiona tu agenda, clientes e inventario con TuLook360.</p>
-        <a href="<?= ruta_accion('auth', 'registro') ?>" class="btn-register" style="display:inline-block; margin-top:20px;">Prueba Gratis Ahora</a>
-    </div>
-
-    <footer style="text-align:center; padding:30px; color:#888; font-size:0.8rem; background:white;">
-        <p>&copy; <?= date('Y') ?> TuLook360 Inc.</p>
-    </footer>
+    <!-- FIN SECCION HISTORIA -->
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. CARRUSEL FADE (Igual que antes)
-            const cards = document.querySelectorAll('.fade-carousel-card');
-            cards.forEach(card => {
-                const images = card.querySelectorAll('.fade-img');
-                const btnPrev = card.querySelector('.arrow-prev');
-                const btnNext = card.querySelector('.arrow-next');
-                if (images.length <= 1) return;
-                let currentIndex = 0; let autoInterval;
-                const showImage = (index) => {
-                    images.forEach(img => img.classList.remove('visible'));
-                    images[index].classList.add('visible');
-                };
-                const nextImage = () => { currentIndex = (currentIndex + 1) % images.length; showImage(currentIndex); };
-                const prevImage = () => { currentIndex = (currentIndex - 1 + images.length) % images.length; showImage(currentIndex); };
-                const handleArrowClick = (e, action) => {
-                    e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation(); 
-                    action(); resetTimer();
-                };
-                if (btnNext && btnPrev) {
-                    btnNext.addEventListener('click', (e) => handleArrowClick(e, nextImage));
-                    btnPrev.addEventListener('click', (e) => handleArrowClick(e, prevImage));
-                }
-                const startAuto = () => { autoInterval = setInterval(nextImage, 4000); };
-                const stopAuto = () => clearInterval(autoInterval);
-                const resetTimer = () => { stopAuto(); startAuto(); };
-                setTimeout(startAuto, Math.floor(Math.random() * 3000));
-                card.addEventListener('mouseenter', stopAuto);
-                card.addEventListener('mouseleave', startAuto);
-                card.addEventListener('touchstart', stopAuto, {passive: true});
-            });
+            // Lógica para el menú móvil de Pantalla Completa
+            const btnMenu = document.getElementById('btnMenuMovil');
+            const btnCerrar = document.getElementById('btnCerrarMenu');
+            const menu = document.getElementById('menuMovil');
 
-            // 2. BUSCADOR VIVO
-            const hero = document.getElementById('hero-section');
-            const input = document.getElementById('inputBusqueda');
-            const btnClear = document.getElementById('btnBorrarBusqueda');
-            const grid = document.getElementById('gridResultados');
-            const noResults = document.getElementById('sinResultados');
+            if(btnMenu && btnCerrar && menu) {
+                btnMenu.addEventListener('click', () => {
+                    menu.classList.add('activo');
+                    document.body.style.overflow = 'hidden'; // Evita scroll de fondo
+                });
+                btnCerrar.addEventListener('click', () => {
+                    menu.classList.remove('activo');
+                    document.body.style.overflow = ''; // Restaura scroll
+                });
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
             
-            // AGREGADO: MOVER PANEL EN MOVIL PARA QUE SEA HIJO DE LA CAJA DE TEXTO (TRUCO DE POSICIONAMIENTO)
-            const panel = document.getElementById('panelResultados');
-            const wrapper = document.querySelector('.hero-content-wrapper');
-            
-            // Función para reubicar el panel en móvil (para que la burbuja nazca del wrapper)
-            const checkMobile = () => {
-                if (window.innerWidth <= 900) {
-                    wrapper.appendChild(panel); // Mover dentro del wrapper en móvil
+            // 1. Obtener el contenedor
+            const carruselLogos = document.getElementById('carruselLogosHistoria');
+            if (!carruselLogos) return;
+
+            // --- EL CAMBIO ESTÁ AQUÍ 1: Usamos la URL segura con Token que ya tienes arriba ---
+            const urlTraerLogos = '<?= str_replace("+", "%2B", ruta_accion("publico", "listar_negocios_ajax", [], false)) ?>';
+            const rutaSinFoto = 'recursos/img/sin_foto.png';
+
+            // 3. Hacer la petición AJAX
+            fetch(urlTraerLogos, {
+                headers: { 
+                    'Accept': 'application/json',
+                    // --- EL CAMBIO ESTÁ AQUÍ 2: Cabecera para que el Router sepa que es AJAX ---
+                    'X-Requested-With': 'XMLHttpRequest' 
+                }
+            })
+            .then(r => r.json())
+            .then(resp => {
+                // Si la respuesta es exitosa y hay datos...
+                if (resp.success && resp.data && resp.data.length > 0) {
+                    
+                    let htmlLogos = '';
+                    
+                    // DIBUJAR LOS LOGOS (LO HACEMOS DOS VECES PARA EL BUCLE INFINITO)
+                    for (let i = 0; i < 2; i++) {
+                        resp.data.forEach(negocio => {
+                            const logoUrl = negocio.neg_logo ? negocio.neg_logo : rutaSinFoto;
+                            
+                            htmlLogos += `
+                                <div class="logo-box" title="${negocio.neg_nombre}">
+                                    <img src="${logoUrl}" alt="${negocio.neg_nombre}" loading="lazy">
+                                </div>
+                            `;
+                        });
+                    }
+
+                    // Inyectar en el HTML
+                    carruselLogos.innerHTML = htmlLogos;
+
                 } else {
-                    document.getElementById('hero-section').appendChild(panel); // Volver al hero en PC
+                    // Solo si la BD está vacía mostramos el respaldo
+                    carruselLogos.innerHTML = `
+                        <div class="logo-box"><i class="fa-solid fa-store" style="font-size:2.5rem; color:#ddd;"></i></div>
+                        <div class="logo-box"><i class="fa-solid fa-scissors" style="font-size:2.5rem; color:#ddd;"></i></div>
+                        <div class="logo-box"><i class="fa-solid fa-spa" style="font-size:2.5rem; color:#ddd;"></i></div>
+                        <div class="logo-box"><i class="fa-solid fa-store" style="font-size:2.5rem; color:#ddd;"></i></div>
+                    `;
                 }
-            };
-            window.addEventListener('resize', checkMobile);
-            checkMobile(); // Ejecutar al inicio
-
-            let debounceTimer;
-
-            const resetSearch = () => {
-                input.value = '';
-                hero.classList.remove('searching');
-                btnClear.style.display = 'none';
-                setTimeout(() => { grid.innerHTML = ''; }, 500); 
-            };
-
-            btnClear.addEventListener('click', resetSearch);
-
-            input.addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                btnClear.style.display = val.length > 0 ? 'flex' : 'none';
-                if (val.length < 2) {
-                    if(val.length === 0) resetSearch();
-                    return; 
-                }
-                hero.classList.add('searching');
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    fetch(`index.php?c=publico&a=buscar_ajax&q=${encodeURIComponent(val)}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            grid.innerHTML = '';
-                            if (data.length === 0) {
-                                noResults.style.display = 'block';
-                            } else {
-                                noResults.style.display = 'none';
-                                data.forEach((item, index) => {
-                                    const card = document.createElement('div');
-                                    card.className = 'mini-card';
-                                    card.style.animationDelay = `${index * 0.1}s`;
-                                    card.onclick = () => window.location.href = 'index.php?c=auth&a=login';
-                                    
-                                    const meta = item.tipo === 'servicio' 
-                                        ? `<i class="fa-regular fa-clock"></i> ${item.meta} min` 
-                                        : `<i class="fa-solid fa-box"></i> Stock`;
-
-                                    card.innerHTML = `
-                                        <div class="mini-img-wrapper">
-                                            <img src="${item.imagen}" class="mini-img">
-                                            <span class="mini-price-tag">$${parseFloat(item.precio).toFixed(2)}</span>
-                                        </div>
-                                        <div class="mini-info">
-                                            <h4>${item.titulo}</h4>
-                                            <div class="mini-biz-info">
-                                                <i class="fa-solid fa-store" style="font-size:0.5rem;"></i>
-                                                <span>${item.negocio}</span>
-                                            </div>
-                                            <div style="font-size: 0.6rem; color: #bbb; margin-top: 3px;">
-                                                ${meta}
-                                            </div>
-                                        </div>
-                                    `;
-                                    grid.appendChild(card);
-                                });
-                            }
-                        })
-                        .catch(err => console.error(err));
-                }, 300);
+            })
+            .catch(err => {
+                console.error("Error al cargar logos para historia:", err);
             });
         });
     </script>
+
+
 </body>
 </html>

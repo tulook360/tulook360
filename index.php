@@ -15,7 +15,12 @@ $token = $_GET['token'] ?? null;
 $accionSolicitada = $_GET['a'] ?? $_GET['m'] ?? '';
 
 // Agregamos 'buscar_ajax' para permitir búsqueda sin login
-$accionesPublicasPermitidas = ['verificar_correo_ajax', 'guardarRegistro', 'buscar_ajax'];
+$accionesPublicasPermitidas = [
+    'verificar_correo_ajax', 
+    'guardarRegistro', 
+    'buscar_ajax',
+    'listar_negocios_ajax'    
+];
 
 $esVerificacionPublica = (
     !$token && 
