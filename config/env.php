@@ -31,10 +31,17 @@ if (!function_exists('loadEnv')) {
 }
 
 if (!function_exists('env')) {
-    function env(string $key, $default = null)
-    {
-        return $_ENV[$key] ?? getenv($key) ?? $default;
+    function env($key, $default = null) {
+    // 1. Intentar leer de las variables de entorno del sistema (Render/Docker)
+    $value = getenv($key);
+
+    if ($value === false) {
+        // 2. Si no existe en el sistema, intentar con $_ENV (XAMPP local)
+        $value = $_ENV[$key] ?? $_SERVER[$key] ?? $default;
     }
+
+    return $value;
+}
 }
 
 // Cargar .env al incluir este archivo
