@@ -455,17 +455,43 @@ foreach ($detalles as $d) {
         });
     }
 
-    function actualizarLineaFutura() {
-        if(routingPlan) map.removeControl(routingPlan);
-        let puntosRuta = paradasLogica.map(p => L.latLng(p.info.lat, p.info.lon));
-        puntosRuta.push(destinoFinal);
+    // 1. Variable global para rastrear la ruta activa
+    let routingControlGlobal = null;
 
-        routingPlan = L.Routing.control({
-            waypoints: puntosRuta,
-            routeWhileDragging: false, addWaypoints: false, draggableWaypoints: false,
-            createMarker: function() { return null; },
-            lineOptions: { styles: [{color: '#9b59b6', opacity: 0.5, weight: 5, dashArray: '10,15'}] }, // MORADO PUNTEADO
-            show: false, containerClassName: 'routing-hidden'
+    function actualizarLineaFutura(lat1, lng1, lat2, lng2) {
+        // 2. LIMPIEZA PREVIA (El Parche)
+        // Si ya existe un control, lo removemos del mapa antes de crear el nuevo
+        if (routingControlGlobal !== null) {
+            try {
+                // Usamos removeControl para limpiar todo el objeto
+                map.removeControl(routingControlGlobal);
+            } catch (e) {
+                // Si falla, es porque Leaflet ya lo borró internamente
+                console.warn("No se pudo remover el control viejo, continuando...");
+            }
+            routingControlGlobal = null; // Reset de la variable
+        }
+
+        // 3. CREACIÓN SEGURA
+        routingControlGlobal = L.Routing.control({
+            waypoints: [
+                L.latLng(lat1, lng1),
+                L.latLng(lat2, lng2)
+            ],
+            // Importante: No mostrar el panel de instrucciones para ahorrar recursos
+            show: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: false,
+            lineOptions: {
+                styles: [{ color: '#ff4757', weight: 5, opacity: 0.7 }]
+            },
+            // Usar un manejador de errores para que el sistema no se caiga
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1' 
+            })
+        }).on('routingerror', function(e) {
+            console.error("Error de ruta: Servidor OSRM saturado.");
         }).addTo(map);
     }
 
