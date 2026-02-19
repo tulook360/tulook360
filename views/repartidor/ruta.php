@@ -408,7 +408,7 @@ foreach ($detalles as $d) {
     let rutaYaOptimizada = false;
     let ubicacionSimulada = null; 
 
-    
+
     // 1. Variable global para rastrear la ruta activa
     let routingControlGlobal = null;
 
@@ -417,10 +417,22 @@ foreach ($detalles as $d) {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
     // Iconos
-    const iconStore = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3082/3082383.png', iconSize: [35, 35], popupAnchor: [0, -15] });
+    const iconStore = L.icon({
+        // PHP generará la URL correcta de Render automáticamente
+        iconUrl: '<?= asset("recursos/img/icono_sucursal.png") ?>', 
+        iconSize: [45, 45], 
+        popupAnchor: [0, -22],
+        className: 'sucursal-marker' // Opcional, por si quieres darle estilos CSS luego
+    });
     const iconClient = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/9356/9356230.png', iconSize: [40, 40], popupAnchor: [0, -20] });
     const iconCheck = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png', iconSize: [30, 30], popupAnchor: [0, -15] });
-    const iconMoto = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/171/171253.png', iconSize: [45, 45], popupAnchor: [0, -20], className: 'moto-marker' });
+    const iconMoto = L.icon({
+        // Usamos el helper asset de PHP para generar la ruta correcta
+        iconUrl: '<?= asset("recursos/img/moto_reparto.png") ?>', 
+        iconSize: [50, 50], // Puedes hacerlo un poco más grande si quieres
+        popupAnchor: [0, -25],
+        className: 'moto-marker'
+    });
 
     L.marker(destinoFinal, {icon: iconClient}).addTo(map).bindPopup("<b>Cliente</b><br>Punto de Entrega");
 
