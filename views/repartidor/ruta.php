@@ -408,6 +408,10 @@ foreach ($detalles as $d) {
     let rutaYaOptimizada = false;
     let ubicacionSimulada = null; 
 
+    
+    // 1. Variable global para rastrear la ruta activa
+    let routingControlGlobal = null;
+
     // --- 2. MAPA ---
     const map = L.map('mapa-full', { zoomControl: false }).setView([CLIENTE_LAT, CLIENTE_LON], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
@@ -455,8 +459,7 @@ foreach ($detalles as $d) {
         });
     }
 
-    // 1. Variable global para rastrear la ruta activa
-    let routingControlGlobal = null;
+    
 
     function actualizarLineaFutura(lat1, lng1, lat2, lng2) {
         // 2. LIMPIEZA PREVIA (El Parche)
