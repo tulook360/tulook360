@@ -1,0 +1,211 @@
+/* recursos/css/accion.css */
+
+/* ==================================================
+   1. ESTILOS PARA EL LISTADO (JERARQUÍA PADRE-HIJO)
+   ================================================== */
+
+/* Contenedor Padre */
+.card-parent {
+    border-left: 5px solid var(--color-primario);
+    transition: transform 0.2s;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+.card-parent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(232, 67, 147, 0.15);
+    border-color: var(--color-secundario);
+}
+
+/* Estado Activo (Seleccionado en PC) */
+.card-parent.selected {
+    background-color: #fff0f6;
+    border-color: var(--color-primario);
+}
+
+/* Encabezado del Padre */
+.parent-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #fff;
+    border-bottom: 1px dashed #f0f0f0;
+}
+
+.parent-icon {
+    width: 42px; height: 42px;
+    background: #fff0f6; color: var(--color-primario);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.parent-info { flex: 1; min-width: 0; }
+
+.parent-title {
+    margin: 0; font-size: 1rem; color: var(--color-texto); font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.parent-meta {
+    font-size: 0.8rem; color: #b2bec3; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Flecha móvil */
+.mobile-arrow {
+    color: #dfe6e9; transition: transform 0.3s;
+    display: none;
+}
+.card-parent.open .mobile-arrow { transform: rotate(180deg); color: var(--color-primario); }
+
+/* Badges de Zona */
+.badge-mini {
+    font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; 
+    font-weight: 700; margin-left: 8px; letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.bg-sis { background: #ffecec; color: #d63031; border: 1px solid #ffcece; }
+.bg-neg { background: #eef0ff; color: #6c5ce7; border: 1px solid #e0e6ed; }
+.bg-amb { background: #f1f2f6; color: #636e72; border: 1px solid #dfe6e9; }
+
+/* Lista de Hijos */
+.children-list {
+    display: flex; flexDirection: column; background: #fafafa;
+}
+.child-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.7rem 1.5rem 0.7rem 2.5rem; border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+.child-row:hover { background: #ffffff; }
+
+/* Botones Mini */
+.btn-mini {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; border: 1px solid #eee; background: white; color: #636e72;
+    text-decoration: none; transition: all 0.2s;
+}
+.btn-mini:hover { background: var(--color-primario); color: white; border-color: var(--color-primario); }
+
+
+/* ==================================================
+   2. ESTILOS PARA FORMULARIOS (CREAR/EDITAR)
+   ================================================== */
+
+/* Radio Cards (Tipo Acción) */
+.radio-card {
+    flex: 1;
+    border: 2px solid #dfe6e9; border-radius: 12px; padding: 1.2rem;
+    display: flex; align-items: center; gap: 15px; cursor: pointer;
+    transition: all 0.2s; background: #fff;
+}
+.radio-card i { font-size: 1.8rem; color: #b2bec3; }
+.radio-card strong { display: block; color: #2d3436; font-size: 1rem; }
+.radio-card span { display: block; color: #636e72; font-size: 0.8rem; margin-top: 3px; }
+
+.radio-card.active { border-color: var(--color-primario); background: #fff0f6; }
+.radio-card.active i { color: var(--color-primario); }
+
+/* Grid de Selección (Zonas y Menús) */
+.menu-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem; margin-top: 0.5rem;
+}
+
+.menu-option-card {
+    background: #f9fafb; border: 2px solid transparent; border-radius: 12px;
+    padding: 0.8rem; display: flex; align-items: center; gap: 10px;
+    cursor: pointer; transition: all 0.2s ease; position: relative;
+}
+.menu-option-card:hover { border-color: #dfe6e9; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+.menu-option-card.active {
+    background: #ffffff; border-color: var(--color-primario);
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.15);
+}
+
+.menu-opt-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.menu-opt-icon.suelta { background: #dfe6e9; color: #636e72; }
+.menu-opt-icon.carpeta { background: #eef0ff; color: #6c5ce7; }
+
+.menu-opt-info .title { font-weight: 700; font-size: 0.85rem; color: #2d3436; display: block; }
+.menu-opt-info .desc { font-size: 0.7rem; color: #b2bec3; }
+
+.check-mark {
+    position: absolute; top: 8px; right: 8px;
+    color: var(--color-primario); font-size: 0.9rem;
+    opacity: 0; transform: scale(0); transition: all 0.2s;
+}
+.menu-option-card.active .check-mark { opacity: 1; transform: scale(1); }
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--color-primario); }
+input:checked + .slider:before { transform: translateX(24px); }
+
+/* Input URL especial */
+.code-url-input {
+    font-family: 'Courier New', monospace; color: var(--color-primario); font-weight: 600;
+}
+
+/* ==================================================
+   3. PANEL LATERAL Y ACORDEÓN
+   ================================================== */
+.details-panel {
+    position: fixed; top: 0; right: -450px; width: 400px; height: 100vh;
+    background: white; box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+    z-index: 2000; transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex; flex-direction: column; padding: 2rem; overflow-y: auto;
+}
+.details-panel.active { right: 0; }
+
+.panel-close {
+    position: absolute; top: 1.5rem; right: 1.5rem; font-size: 1.5rem; color: #b2bec3; cursor: pointer; transition: 0.2s;
+}
+.panel-close:hover { color: var(--color-primario); }
+
+.panel-header { text-align: center; margin-bottom: 2rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 1rem; }
+.panel-icon-big { font-size: 3rem; color: var(--color-primario); margin-bottom: 1rem; display: block; }
+.panel-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+.panel-badge { 
+    display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem;
+    background: #f1f2f6; color: #636e72; 
+}
+.panel-children { display: flex; flex-direction: column; gap: 0.5rem; }
+.panel-child-row {
+    display: flex; justify-content: space-between; align-items: center; padding: 0.8rem;
+    border-radius: 8px; border: 1px solid #f0f0f0; background: #fff; transition: 0.2s;
+}
+.panel-child-row:hover { border-color: var(--color-primario); background: #fff5f9; }
+
+.mobile-details {
+    display: none; padding: 0 1.2rem 1.2rem; border-top: 1px dashed #f0f0f0; margin-top: 0.5rem; background: #fafafa;
+}
+.card-parent.open .mobile-details { display: block; }
+
+
+/* ==================================================
+   4. RESPONSIVO
+   ================================================== */
+@media (min-width: 901px) {
+    .mobile-details { display: none !important; }
+    .mobile-arrow { display: none !important; }
+}
+@media (max-width: 900px) {
+    .details-panel { display: none !important; }
+    .mobile-arrow { display: block; }
+    .card-parent:hover { transform: none; }
+}

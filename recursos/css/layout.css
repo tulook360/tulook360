@@ -1,0 +1,239 @@
+/* recursos/css/layout.css */
+
+:root {
+    --sidebar-width: 280px;
+    --topbar-height: 70px;
+}
+
+body:has(.layout) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   1. SIDEBAR (FIJO A LA IZQUIERDA)
+   ========================================================================== */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    z-index: 2000; /* Z-index alto para estar sobre todo */
+    color: #ffffff;
+    box-shadow: 4px 0 25px rgba(232, 67, 147, 0.15);
+    
+    /* ANIMACIÓN SUAVE: La transición debe estar siempre aquí */
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar { width: 0; background: transparent; }
+
+.sidebar-header {
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-header .brand {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #fff;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 2rem 1rem;
+}
+
+/* --- Estilos de enlaces del menú --- */
+.menu-divider { height: 1px; background: rgba(255, 255, 255, 0.2); margin: 1rem 0.5rem; }
+
+.menu-link { 
+    display: flex; align-items: center; gap: 15px; 
+    padding: 0.9rem 1.2rem; color: rgba(255, 255, 255, 0.95); 
+    text-decoration: none; border-radius: 12px; font-size: 0.95rem; 
+    font-weight: 500; transition: all 0.25s ease; 
+    border-left: 3px solid transparent; margin-bottom: 5px; 
+}
+.menu-link i { width: 22px; text-align: center; font-size: 1.1rem; }
+
+.menu-link:hover, .menu-link.activo { 
+    background: rgba(255, 255, 255, 0.2); color: #ffffff; 
+    border-left-color: #ffffff; padding-left: 1.5rem; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+}
+
+.nav-folder { margin-bottom: 5px; }
+.nav-folder-header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 0.9rem 1.2rem; color: rgba(255, 255, 255, 0.9); 
+    cursor: pointer; border-radius: 12px; font-weight: 600; transition: 0.2s; 
+}
+.nav-folder-header:hover { background: rgba(255,255,255,0.15); }
+.nav-folder-header .arrow { font-size: 0.8rem; transition: transform 0.3s; }
+.nav-folder.open .arrow { transform: rotate(90deg); }
+
+.nav-folder-items { 
+    display: none; padding-left: 1rem; margin-top: 0.2rem; 
+    background: rgba(0,0,0,0.08); border-radius: 12px; 
+}
+.nav-folder.open .nav-folder-items { display: block; }
+.menu-link.sub-link { font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+.menu-link.sub-link:hover { color: #fff; background: rgba(255,255,255,0.1); padding-left: 1.2rem; }
+
+
+/* ==========================================================================
+   2. MAIN CONTENT & SCROLL
+   ========================================================================== */
+.main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: 100vh; 
+    position: relative;
+    background: #ffffff; 
+    overflow: hidden; /* Bloqueamos scroll externo */
+}
+
+.top-bar {
+    height: var(--topbar-height);
+    width: 100%;
+    position: absolute; 
+    top: 0; left: 0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 3rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    z-index: 900;
+}
+
+.page-content {
+    height: calc(100vh - var(--topbar-height));
+    margin-top: var(--topbar-height);
+    overflow-y: auto; /* SCROLL INTERNO ACTIVO */
+    padding: 2rem 3rem 4rem 3rem;
+    scroll-behavior: smooth;
+}
+.page-content::-webkit-scrollbar { width: 8px; }
+.page-content::-webkit-scrollbar-track { background: #f1f1f1; }
+.page-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.page-content::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
+
+
+/* ==========================================================================
+   3. USER INFO & LOGOUT (NUEVO ESTILO)
+   ========================================================================== */
+.user-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Separación entre info y botón salir */
+}
+
+.user-info { 
+    display: flex; align-items: center; gap: 12px; 
+}
+.user-text { text-align: right; }
+.user-text .name { font-weight: 600; color: #2d3436; font-size: 0.9rem; }
+.user-text .role { font-size: 0.75rem; color: #b2bec3; }
+
+.user-avatar { 
+    width: 42px; height: 42px; 
+    background: #fff0f6; color: var(--color-primario); 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    font-weight: 700; border: 2px solid #fff; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+}
+
+/* Botón de Salir Discreto */
+.btn-logout-nav {
+    color: #b2bec3; /* Gris suave */
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px; height: 35px;
+    border-radius: 50%;
+}
+
+.btn-logout-nav:hover {
+    background: #fff5f5;
+    color: #d63031; /* Rojo al pasar el mouse */
+    transform: translateX(2px); /* Pequeño movimiento */
+}
+
+/* recursos/css/layout.css */
+
+/* ... (Todo el código anterior se mantiene igual hasta la sección RESPONSIVO) ... */
+
+/* ==========================================================================
+   RESPONSIVO (MÓVIL)
+   ========================================================================== */
+.mobile-toggle, .btn-close-sidebar { display: none; }
+
+@media (max-width: 900px) {
+    .main-content { margin-left: 0; width: 100%; }
+
+    /* SIDEBAR OCULTO A LA IZQUIERDA */
+    .sidebar { 
+        left: -280px; 
+    }
+    
+    /* SIDEBAR MOSTRÁNDOSE */
+    .sidebar.active { 
+        left: 0;
+        box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+    }
+
+    .top-bar {
+        padding: 0 1rem; /* Reducimos un poco el padding lateral para ganar espacio */
+        justify-content: space-between; 
+    }
+
+    .mobile-toggle { display: block; font-size: 1.3rem; color: var(--color-primario); border: none; background: none; cursor: pointer; }
+    .btn-close-sidebar { display: block; position: absolute; right: 1rem; top: 1.5rem; font-size: 1.5rem; border: none; background: none; color: white; cursor: pointer;}
+
+    .page-content { padding: 1.5rem; padding-bottom: 6rem; }
+
+    .menu-overlay { 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.5); z-index: 1500; 
+        opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        backdrop-filter: blur(3px); 
+    }
+    
+    .menu-overlay.active { 
+        opacity: 1; visibility: visible; 
+    }
+    
+    /* --- CAMBIO CLAVE: VISIBILIDAD DEL USUARIO EN MÓVIL --- */
+    
+    /* Ya NO ocultamos .user-text */
+    .user-text { 
+        display: block !important; /* Forzamos que se vea */
+        margin-right: 5px;
+    }
+    
+    /* Ajustamos el tamaño de fuente para que no ocupe mucho */
+    .user-text .name { font-size: 0.8rem; line-height: 1.1; }
+    .user-text .role { font-size: 0.65rem; }
+    
+    /* Ajustamos el gap para que los elementos estén más juntitos */
+    .user-wrapper { gap: 0.8rem; }
+    
+    /* Hacemos el avatar un pelín más pequeño en móvil */
+    .user-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
+}

@@ -1,0 +1,24 @@
+RewriteEngine On
+
+# 1. SEGURIDAD: Bloquear acceso a archivos sensibles
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# 2. SEGURIDAD: Desactivar el listado de carpetas
+Options -Indexes
+
+# 3. EXCEPCIÓN: Si el archivo o carpeta existe (CSS, JS, Imágenes), cargarlo real
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 4. LÓGICA DE TOKENS: Reescribir URL limpia a parámetro token
+# Ejemplo: tudominio.com/TOKEN -> index.php?token=TOKEN
+RewriteRule ^([A-Za-z0-9_-]+)/?$ index.php?token=$1 [QSA,L]
+
+# 5. FALLBACK: Cualquier otra cosa que no sea un archivo real, al index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]

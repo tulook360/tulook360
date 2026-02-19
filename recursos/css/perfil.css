@@ -1,0 +1,230 @@
+/* recursos/css/perfil.css */
+
+/* ==========================================================================
+   1. TARJETA PRINCIPAL
+   ========================================================================== */
+.profile-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(232, 67, 147, 0.08);
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Banner Superior (Degradado) */
+.profile-header-bg {
+    height: 200px; /* Altura generosa para PC */
+    background: var(--bg-sidebar); /* Usamos variable global */
+    position: relative;
+}
+
+/* Decoración circular sutil en el banner */
+.profile-header-bg::after {
+    content: ''; position: absolute;
+    bottom: -20px; right: -20px; width: 150px; height: 150px;
+    background: rgba(255,255,255,0.1); border-radius: 50%;
+}
+
+
+/* ==========================================================================
+   2. ZONA DE IDENTIDAD (FOTO Y NOMBRE)
+   ========================================================================== */
+.profile-identity {
+    padding: 0 3rem;
+    display: flex;
+    align-items: center; /* Centrado vertical */
+    margin-top: -75px;   /* Subir la foto sobre el banner */
+    margin-bottom: 2rem;
+    gap: 2rem;
+    position: relative;
+}
+
+/* --- FOTO DE PERFIL --- */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 150px; height: 150px;
+    flex-shrink: 0;
+    z-index: 2; /* Encima del banner */
+}
+
+.profile-avatar-box {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 5px solid #ffffff; /* Borde blanco grueso */
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.profile-avatar-box img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+.profile-avatar-initials {
+    font-size: 3.5rem; font-weight: 700; color: var(--color-primario);
+    background: #fff0f6; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Botón Flotante de Cámara */
+.btn-edit-avatar {
+    position: absolute;
+    bottom: 5px; right: 5px;
+    width: 40px; height: 40px;
+    background: var(--color-primario); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background 0.2s;
+}
+.btn-edit-avatar:hover {
+    transform: scale(1.1);
+    background: var(--color-secundario);
+}
+
+/* Input oculto */
+#inputFotoPerfil { display: none; }
+
+
+/* --- TEXTOS (NOMBRE Y ROL) --- */
+.profile-names {
+    padding-bottom: 0;
+    /* Empujamos el texto hacia abajo para que quede en la zona blanca */
+    margin-top: 85px; 
+}
+
+.profile-fullname {
+    font-size: 2.2rem; font-weight: 700; color: var(--color-texto);
+    line-height: 1.1; margin-bottom: 0.5rem;
+}
+
+.profile-role-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: #eef0ff; color: #6c5ce7;
+    border-radius: 50px;
+    font-size: 0.85rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+
+/* ==========================================================================
+   3. GRILLA DE INFORMACIÓN (DATOS)
+   ========================================================================== */
+.profile-info-grid {
+    padding: 0 3rem 3rem 3rem;
+    display: grid;
+    /* Columnas flexibles con mínimo de 280px */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.info-group {
+    margin-bottom: 0.5rem;
+    min-width: 0; /* Evita desbordamiento */
+    width: 100%;
+}
+
+.info-label {
+    font-size: 0.85rem; color: #b2bec3;
+    font-weight: 600; text-transform: uppercase;
+    margin-bottom: 0.5rem; display: block;
+}
+
+/* Contenedor Flex para Valor + Botón */
+.info-value-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Valor del dato (Estilo input disabled) */
+.info-value {
+    flex: 1; /* Ocupa espacio disponible */
+    min-width: 0; /* Permite encogerse */
+    
+    font-size: 1.1rem; color: var(--color-texto); font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.8rem 1rem;
+    background: #f9fafb; border-radius: 12px; 
+    border: 1px solid transparent;
+    transition: all 0.2s;
+
+    /* Recorta texto largo con ... */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.info-value:hover {
+    background: #fff; border-color: var(--color-primario);
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.05);
+}
+.info-value i {
+    color: var(--color-primario); font-size: 1.1rem; flex-shrink: 0;
+}
+
+/* Botón Mini Editar (Lápiz) */
+.btn-mini-edit {
+    width: 35px; height: 35px;
+    border-radius: 50%;
+    border: 1px solid #dfe6e9;
+    background: white; color: #b2bec3;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    flex-shrink: 0; /* Nunca se encoge */
+}
+.btn-mini-edit:hover {
+    background: var(--color-primario); color: white;
+    border-color: var(--color-primario); transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(232, 67, 147, 0.2);
+}
+
+
+/* ==========================================================================
+   4. ESTILOS DE MODALES (ERRORES)
+   ========================================================================== */
+.error-msg-modal {
+    color: #d63031;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: block;
+    font-weight: 500;
+}
+
+.input-error {
+    border-color: #d63031 !important;
+    background-color: #fff5f5 !important;
+}
+
+
+/* ==========================================================================
+   5. RESPONSIVO (MÓVIL)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .profile-header-bg { height: 120px; }
+    
+    .profile-identity {
+        flex-direction: column; align-items: center; text-align: center;
+        margin-top: -60px; gap: 1rem; padding: 0 1.5rem; margin-bottom: 2rem;
+    }
+    
+    .profile-avatar-wrapper { width: 110px; height: 110px; }
+    .btn-edit-avatar { width: 35px; height: 35px; font-size: 0.9rem; bottom: 0; right: 0;}
+    
+    /* En móvil quitamos el margen superior forzado */
+    .profile-names { margin-top: 0; }
+    .profile-fullname { font-size: 1.5rem; }
+    
+    /* Una sola columna forzada */
+    .profile-info-grid { 
+        padding: 1.5rem; 
+        grid-template-columns: 1fr; 
+    }
+    
+    .info-value { font-size: 1rem; padding: 0.7rem; }
+}

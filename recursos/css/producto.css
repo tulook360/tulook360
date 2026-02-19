@@ -1,0 +1,83 @@
+/* recursos/css/producto.css */
+
+.producto-card {
+    padding: 0 !important; display: flex; flex-direction: column;
+    overflow: hidden; background: #fff; border: 1px solid #f0f0f0;
+}
+
+/* ESTRUCTURA HORIZONTAL */
+.producto-row {
+    display: flex !important; flex-direction: row !important; align-items: stretch;
+    min-height: 160px;
+}
+
+/* IZQUIERDA: INFO */
+.producto-info {
+    flex: 1; padding: 1.2rem;
+    display: flex; flex-direction: column; justify-content: center; min-width: 0;
+}
+
+.card-top-badges { display: flex; gap: 8px; margin-bottom: 6px; }
+.badge-cat { font-size: 0.65rem; background: #eef0ff; color: #6c5ce7; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+.badge-cod { font-size: 0.7rem; color: #b2bec3; font-family: monospace; font-weight: 700; }
+
+.producto-info .card-title {
+    font-size: 1.2rem; font-weight: 700; color: var(--color-texto);
+    margin-bottom: 4px; line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.producto-info .card-price {
+    font-size: 1.3rem; font-weight: 800; color: var(--color-primario); margin-bottom: 6px;
+}
+
+.producto-info .card-stock {
+    font-size: 0.85rem; color: #636e72; display: flex; align-items: center; gap: 5px;
+}
+.stock-ok { color: #00b894; font-weight: 700; }
+.stock-low { color: #fdcb6e; font-weight: 700; }
+.stock-out { color: #d63031; font-weight: 700; }
+
+/* DERECHA: CARRUSEL */
+.producto-img-box {
+    width: 160px; flex-shrink: 0; position: relative;
+    background: #f8f9fa; border-left: 1px solid #f1f2f6;
+}
+
+.carousel { width: 100%; height: 100%; position: relative; }
+.carousel-inner { width: 100%; height: 100%; }
+.carousel-item {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; transition: opacity 0.8s ease-in-out;
+    display: none; 
+}
+.carousel-item.active { opacity: 1; display: block; }
+.carousel-item img { width: 100%; height: 100%; object-fit: cover; }
+
+.carousel-control {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.3); color: white; border: none;
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+    font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; opacity: 0; z-index: 2;
+}
+.producto-img-box:hover .carousel-control { opacity: 1; }
+.prev { left: 5px; } .next { right: 5px; }
+
+.no-img-placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    color: #dfe6e9; font-size: 2.5rem;
+}
+
+/* ACCIONES */
+.card-actions {
+    padding: 0.8rem 1.2rem; border-top: 1px solid #f8f9fa;
+    display: flex; justify-content: flex-end; gap: 10px; background: #fff;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+    .producto-row { flex-direction: column-reverse !important; height: auto !important; }
+    .producto-img-box { width: 100%; height: 180px; border-left: none; }
+    .producto-info { padding: 1rem; }
+}

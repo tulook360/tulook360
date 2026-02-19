@@ -1,0 +1,64 @@
+/* recursos/css/permiso.css */
+
+/* Diseño específico para la tarjeta de Rol */
+.card-permiso-rol {
+    text-align: center;
+    border-top: 4px solid transparent; /* Para el hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-top-color 0.3s ease;
+}
+
+.card-permiso-rol:hover {
+    border-top-color: var(--color-primario);
+    transform: translateY(-5px);
+}
+
+/* Contenedor del icono circular */
+.rol-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+    transition: background 0.3s;
+}
+
+.card-permiso-rol:hover .rol-icon-wrapper {
+    background: #fff0f6; /* Fondo rosita al pasar mouse */
+}
+
+/* El icono en sí */
+.icon-role {
+    font-size: 2rem;
+    color: #b2bec3;
+    transition: color 0.3s;
+}
+
+.icon-role.admin {
+    color: #fdcb6e; /* Dorado para admin */
+}
+
+.card-permiso-rol:hover .icon-role {
+    color: var(--color-primario);
+}
+
+/* Título del Rol */
+.rol-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+}
+
+/* Estadística (texto pequeño) */
+.rol-stat {
+    font-size: 0.9rem;
+    color: #636e72;
+    background: #f1f2f6;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}

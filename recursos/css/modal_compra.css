@@ -1,0 +1,174 @@
+
+/* Fondo Oscuro */
+.modal-overlay-prod {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 10, 20, 0.75); backdrop-filter: blur(6px);
+    z-index: 3000; opacity: 0; visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+}
+.modal-overlay-prod.active { opacity: 1; visibility: visible; }
+
+/* Tarjeta del Modal */
+.modal-prod-container {
+    background: #fff; width: 95%; max-width: 380px; /* Diseño compacto y elegante */
+    border-radius: 30px; overflow: hidden;
+    box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.4);
+    transform: translateY(30px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative; display: flex; flex-direction: column;
+}
+.modal-overlay-prod.active .modal-prod-container { transform: translateY(0); }
+
+/* --- ZONA DE LA FOTO (SLIDER) --- */
+.prod-header-slider {
+    height: 260px; position: relative; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Contenedor interno solo para imágenes */
+#sliderImagesBox {
+    width: 100%; height: 100%; position: relative;
+}
+
+.slide-prod-img {
+    width: 100%; height: 100%; object-fit: contain; 
+    padding: 40px 40px 60px 40px; /* Espacio para que no choque con la cápsula */
+    position: absolute; top: 0; left: 0; 
+    opacity: 0; transition: opacity 0.3s ease; transform: scale(0.95);
+}
+.slide-prod-img.active { opacity: 1; z-index: 2; transform: scale(1); }
+
+/* Botones de Navegación (Flechas) */
+.btn-slide-modal {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 35px; height: 35px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95); border: 1px solid #f0f0f0;
+    color: #2d3436; cursor: pointer; z-index: 20; /* Z-index alto para estar encima */
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: 0.2s;
+    display: none; /* Ocultos por defecto, JS los activa */
+}
+.btn-slide-modal:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-slide-modal.prev { left: 15px; }
+.btn-slide-modal.next { right: 15px; }
+
+/* Botón Cerrar */
+.btn-close-prod {
+    position: absolute; top: 15px; right: 15px; width: 36px; height: 36px;
+    border-radius: 50%; background: #f1f2f6; border: none; color: #636e72;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; z-index: 30;
+}
+.btn-close-prod:hover { background: #ff4757; color: white; transform: rotate(90deg); }
+
+/* --- CUERPO DEL MODAL --- */
+.prod-body { padding: 0 25px 25px 25px; text-align: center; position: relative; z-index: 25; }
+
+/* CÁPSULA DE NEGOCIO (PROTAGONISMO) */
+.biz-capsule-wrapper {
+    display: flex; justify-content: center;
+    margin-top: -30px; /* Sube sobre la imagen */
+    margin-bottom: 15px;
+}
+.biz-capsule {
+    background: #fff;
+    padding: 6px 20px 6px 6px; 
+    border-radius: 50px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f5f6fa;
+}
+.biz-logo-circle {
+    width: 42px; height: 42px; border-radius: 50%;
+    object-fit: cover; border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.biz-info-col { text-align: left; line-height: 1.1; }
+.biz-label-tiny { font-size: 0.65rem; color: #b2bec3; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 2px; }
+.biz-name-bold { font-size: 0.95rem; color: #2d3436; font-weight: 900; }
+
+/* Info Producto */
+.prod-title { font-size: 1.4rem; font-weight: 900; color: #2d3436; margin: 10px 0 5px 0; line-height: 1.1; }
+
+.prod-badge { 
+    display: inline-block; background: #fff0f5; color: var(--primary); 
+    padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-bottom: 15px;
+}
+
+.prod-desc { 
+    font-size: 0.9rem; color: #636e72; margin-bottom: 25px; line-height: 1.5; 
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Selector Cantidad */
+.qty-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 8px; }
+
+.btn-qty {
+    width: 45px; height: 45px; border-radius: 14px; border: 2px solid #f1f2f6;
+    background: white; font-size: 1.2rem; cursor: pointer; color: #2d3436;
+    transition: 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.btn-qty:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: #fff5f8; transform: translateY(-2px); }
+
+.btn-qty:disabled { 
+    opacity: 0.4; background: #f5f6fa; border-color: #f1f2f6; cursor: not-allowed; color: #ccc;
+}
+
+.input-qty { 
+    width: 70px; /* Antes era 50px, lo subimos para que quepan 2 o 3 dígitos cómodos */
+    text-align: center; 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    border: none; 
+    outline: none; /* Quita el borde azul al seleccionar */
+    color: #2d3436; 
+    background: transparent; 
+    padding: 0;
+    margin: 0;
+}
+
+/* ESTO ES IMPORTANTE: Oculta las flechitas pequeñas que ponen Chrome y Safari */
+.input-qty::-webkit-outer-spin-button,
+.input-qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Oculta las flechitas en Firefox */
+.input-qty {
+    -moz-appearance: textfield;
+}
+
+/* Footer */
+.prod-footer {
+    padding: 20px 30px; border-top: 1px solid #f8f9fa;
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fff;
+}
+.prod-price-col { text-align: left; }
+.lbl-total { display: block; font-size: 0.7rem; color: #b2bec3; font-weight: 800; text-transform: uppercase; }
+.val-total { font-size: 1.6rem; font-weight: 900; color: var(--primary); }
+
+.btn-add-cart {
+    background: var(--dark); color: white; border: none;
+    padding: 14px 28px; border-radius: 50px; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+    transition: all 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+.btn-add-cart:hover { transform: translateY(-3px); background: var(--primary); box-shadow: 0 10px 25px rgba(253, 121, 168, 0.4); }
+
+/* Spinner */
+.loading-overlay-modal {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    background: white; z-index: 50; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+
+/* --- ANIMACIÓN BOLA VOLADORA --- */
+.flying-ball {
+    position: fixed; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--primary); z-index: 9999;
+    box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+    pointer-events: none;
+    transition: transform 0.8s cubic-bezier(0.2, -0.3, 0.8, 1.2), opacity 0.8s;
+} 

@@ -1,0 +1,141 @@
+/* recursos/css/servicio.css */
+
+.servicio-card {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+}
+
+/* --- ESTRUCTURA SIEMPRE HORIZONTAL (Fila) --- */
+.servicio-row {
+    display: flex !important;
+    flex-direction: row !important; /* SIEMPRE IZQ -> DER */
+    flex-wrap: nowrap !important;   /* PROHIBIDO BAJAR DE LÍNEA */
+    align-items: stretch;
+    min-height: 130px; /* Altura mínima compacta */
+}
+
+/* --- IZQUIERDA: INFORMACIÓN --- */
+.servicio-info {
+    flex: 1; /* Ocupa el espacio restante */
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0; /* Truco vital para que el texto no empuje la imagen */
+}
+
+/* Badges */
+.card-top-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+.badge-cat {
+    font-size: 0.6rem;
+    background: #eef0ff;
+    color: #6c5ce7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-dur {
+    font-size: 0.7rem;
+    color: #b2bec3;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+}
+
+/* Título */
+.servicio-info .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 2px;
+    line-height: 1.2;
+    
+    /* Cortar texto si es muy largo (2 líneas) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Precio */
+.servicio-info .card-price {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primario);
+    margin: 2px 0;
+}
+
+/* Descripción */
+.servicio-info .card-desc {
+    font-size: 0.75rem;
+    color: #636e72;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- DERECHA: CARRUSEL / FOTO --- */
+.servicio-img-box {
+    width: 130px; /* Ancho fijo base (móvil) */
+    flex-shrink: 0; /* PROHIBIDO ENCOGERSE */
+    position: relative;
+    background: #f8f9fa;
+    border-left: 1px solid #f1f2f6;
+}
+
+/* En PC lo hacemos un poco más ancho */
+@media (min-width: 768px) {
+    .servicio-img-box { width: 160px; }
+    .servicio-info { padding: 1.2rem; }
+}
+
+/* Carrusel Interno */
+.carousel { width: 100%; height: 100%; position: relative; }
+.carousel-inner { width: 100%; height: 100%; }
+
+.carousel-item {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; transition: opacity 0.5s ease-in-out; z-index: 0;
+}
+.carousel-item.active { opacity: 1; z-index: 1; }
+
+.carousel-item img {
+    width: 100%; height: 100%; object-fit: cover; /* Llenar sin deformar */
+}
+
+/* Flechas Carrusel */
+.carousel-control {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.3); color: white; border: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; opacity: 0; z-index: 2;
+}
+.servicio-img-box:hover .carousel-control { opacity: 1; }
+.prev { left: 4px; }
+.next { right: 4px; }
+
+.no-img-placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    color: #dfe6e9; font-size: 2rem;
+}
+
+/* --- BOTONES ACCIÓN --- */
+.card-actions {
+    padding: 0.6rem 1rem;
+    border-top: 1px solid #f8f9fa;
+    display: flex; justify-content: flex-end; gap: 10px;
+    background: #fff;
+}

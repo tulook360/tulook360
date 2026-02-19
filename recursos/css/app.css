@@ -1,0 +1,518 @@
+/* ================================
+   Variables y configuración base
+   ================================ */
+:root {
+    /* PALETA VIBRANTE (BELLEZA & ESTILO) */
+    --color-primario: #e84393;        /* Rosa Profundo */
+    --color-secundario: #ff7675;      /* Coral */
+    
+    /* Fondo general: Blanco Nieve (evitamos el gris sucio) */
+    --color-fondo: #ffffff;          
+    
+    --color-texto: #2d3436;           /* Gris oscuro para lectura */
+    --color-blanco: #ffffff;
+    --color-sombra: rgba(232, 67, 147, 0.1); /* Sombra con tinte rosa */
+
+    /* SIDEBAR: El Degradado Marca de la Casa */
+    --bg-sidebar: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+    
+    --bg-overlay: rgba(45, 52, 54, 0.4);
+}
+
+
+/* IMPORTANTE: Bloqueamos el scroll del navegador.
+   El scroll lo manejaremos internamente en cada zona.
+*/
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif; /* Asegúrate de tu fuente */
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    overflow-x: hidden; 
+}
+
+/* Reset sencillo */
+/* Reset de cajas */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+
+/* ================================
+   Layout básico
+   ================================ */
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    padding: 1.2rem 2rem;
+    background: var(--color-blanco);
+    box-shadow: 0 2px 10px var(--color-sombra);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.page-header__brand span {
+    color: var(--color-primario);
+}
+
+.page-header__tagline {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.page-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+}
+
+/* ================================
+   Contenedor de bienvenida
+   ================================ */
+.hero-card {
+    max-width: 960px;
+    width: 100%;
+    background: var(--color-blanco);
+    border-radius: 18px;
+    box-shadow: 0 18px 35px var(--color-sombra);
+    padding: 2.5rem;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 2rem;
+}
+
+.hero-card__title {
+    font-size: 2.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-primario);
+}
+
+.hero-card__subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.85;
+}
+
+.hero-card__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+
+.badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: #eef0ff;
+    color: var(--color-primario);
+}
+
+.hero-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+/* ================================
+   Botones reutilizables
+   ================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btn--primario {
+    background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+    color: var(--color-blanco);
+    box-shadow: 0 8px 18px var(--color-sombra);
+}
+
+.btn--primario:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px var(--color-sombra);
+}
+
+.btn--secundario {
+    background: transparent;
+    color: var(--color-primario);
+    border: 1px solid rgba(108, 92, 231, 0.35);
+}
+
+.btn--secundario:hover {
+    background: rgba(108, 92, 231, 0.06);
+}
+
+/* ================================
+   Panel lateral (ilustración / info)
+   ================================ */
+.hero-card__side {
+    border-radius: 16px;
+    background: linear-gradient(
+        135deg,
+        #ff7eb3 0%,
+        #ff758c 35%,
+        #ff5f6d 70%,
+        #ffc371 100%
+    );
+    color: var(--color-blanco);
+    padding: 1.8rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.hero-card__side-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.hero-card__side-list {
+    font-size: 0.9rem;
+}
+
+.hero-card__side-list li {
+    margin-bottom: 0.4rem;
+}
+
+/* ================================
+   Footer
+   ================================ */
+.page-footer {
+    text-align: center;
+    padding: 0.8rem 1rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+/* ================================
+   Utilidades
+   ================================ */
+.text-muted {
+    opacity: 0.75;
+    font-size: 0.85rem;
+}
+
+/* ================================
+   Responsivo
+   ================================ */
+@media (max-width: 900px) {
+    .hero-card {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+    }
+
+    .hero-card__side {
+        order: -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .hero-card {
+        padding: 1.5rem;
+    }
+
+    .hero-card__title {
+        font-size: 1.7rem;
+    }
+}
+
+
+
+/* ================================
+   Secciones de landing pública
+   ================================ */
+.page-header__actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.landing-info {
+    max-width: 960px;
+    width: 100%;
+    margin: 2rem auto 0;
+    padding: 1.5rem 1.5rem 2rem;
+    background: var(--color-blanco);
+    border-radius: 16px;
+    box-shadow: 0 12px 25px var(--color-sombra);
+}
+
+.landing-info__grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 2rem;
+}
+
+.landing-info__title {
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+    color: var(--color-primario);
+}
+
+.landing-info p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Responsive extra para la sección de info */
+@media (max-width: 900px) {
+    .landing-info__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ================================
+   Formularios base (reutilizables)
+   ================================ */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-control {
+    padding: 0.65rem 0.8rem;
+    padding-right: 2.4rem; /* 🔥 NUEVO: permite iconos internos */
+    border-radius: 10px;
+    border: 1px solid #dcdde1;
+    font-size: 0.95rem;
+    background: #f9fafb;
+    width: 100%; /* 🔥 NUEVO: asegura ancho total */
+    box-sizing: border-box; /* 🔥 NUEVO: protege el tamaño */
+    transition:
+        border-color 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease;
+}
+
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.15);
+}
+
+.form-help {
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Checkbox y links pequeños reutilizables */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+}
+
+.form-check input[type="checkbox"] {
+    accent-color: var(--color-primario);
+}
+
+.form-link {
+    font-size: 0.8rem;
+}
+
+.form-link a {
+    color: var(--color-primario);
+    text-decoration: none;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
+
+/* ================================
+   Tipografía personalizada global
+   ================================ */
+
+.kalam {
+    font-family: 'Kalam', cursive;
+    letter-spacing: -0.5px;
+}
+
+
+
+/* =========================================
+   SISTEMA DE TARJETAS (CRUD REUTILIZABLE)
+   ========================================= */
+
+/* Contenedor: Malla inteligente que se adapta sola */
+.grid-cards {
+    display: grid;
+    /* Magia: Crea tantas columnas como quepan (mínimo 300px ancho) */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* La Tarjeta Individual */
+.card-item {
+    background: var(--color-blanco);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* Sombra suave */
+    border: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto Hover: La tarjeta se levanta un poco */
+.card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(232, 67, 147, 0.15); /* Sombra rosada al pasar */
+    border-color: rgba(232, 67, 147, 0.2);
+}
+
+/* Barra decorativa lateral (opcional, da toque de marca) */
+.card-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--color-primario);
+    opacity: 0; /* Oculto por defecto */
+    transition: opacity 0.2s;
+}
+.card-item:hover::before { opacity: 1; }
+
+/* Cabecera de la tarjeta (ID y Estado) */
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-id {
+    font-size: 0.8rem;
+    color: #b2bec3;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Cuerpo de la tarjeta */
+.card-body { margin-bottom: 1.5rem; }
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 8px;
+}
+
+.card-desc {
+    font-size: 0.9rem;
+    color: #636e72;
+    line-height: 1.5;
+}
+
+/* Footer (Botones de Acción) */
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f2f6;
+}
+
+/* Botones de Icono */
+.btn-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer;
+    transition: 0.2s;
+    font-size: 1rem;
+}
+
+.btn-edit { background: #fff0f6; color: var(--color-primario); }
+.btn-edit:hover { background: var(--color-primario); color: #fff; }
+
+.btn-delete { background: #fff5f5; color: #ff7675; }
+.btn-delete:hover { background: #ff7675; color: #fff; }
+
+/* Badges de Estado */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-active { background: #e1fcf0; color: #00b894; }
+.badge-inactive { background: #ffeaa7; color: #fdcb6e; }
+
+/* Botón Crear General */
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+.btn-create {
+    background: var(--color-primario); color: #fff;
+    padding: 0.7rem 1.2rem; border-radius: 50px;
+    text-decoration: none; font-weight: 600; font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.3);
+    transition: 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-create:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232, 67, 147, 0.4); }

@@ -1,0 +1,207 @@
+/* recursos/css/formularios.css */
+
+/* ==========================================================================
+   1. ESTRUCTURA GENERAL DEL FORMULARIO
+   ========================================================================== */
+
+/* Contenedor principal */
+.form-container {
+    max-width: 700px; /* Ancho por defecto (móvil/tablet) */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Tarjeta contenedora */
+.card-form {
+    background: #ffffff;
+    display: block;
+    padding: 2rem;
+    border-radius: 16px;
+    /* Heredamos sombra/borde del estilo general de tarjetas si existe */
+}
+
+/* Footer del formulario (Botones) */
+.form-footer {
+    text-align: right;
+    border-top: 1px solid #f1f2f6;
+    padding-top: 1.5rem;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+
+/* ==========================================================================
+   2. GRID RESPONSIVO (PARA PC)
+   ========================================================================== */
+@media (min-width: 900px) {
+    .form-container {
+        max-width: 960px; /* Más ancho en PC */
+    }
+
+    /* Malla de 2 columnas */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 2rem; /* Gap vertical 1.5rem, horizontal 2rem */
+    }
+
+    /* Campos que ocupan todo el ancho (Ej: URL, Dirección, Password) */
+    .full-width {
+        grid-column: 1 / -1;
+    }
+}
+
+
+/* ==========================================================================
+   3. CAMPOS (INPUTS Y LABELS)
+   ========================================================================== */
+
+/* Grupo de campo (Label + Input + Error) */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+/* El último grupo antes del footer */
+.form-group-last {
+    margin-bottom: 0; 
+}
+
+/* Etiquetas */
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.required {
+    color: #e84393;
+    margin-left: 2px;
+}
+
+/* Estilo Base del Input */
+.form-control {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #dcdde1;
+    font-size: 0.95rem;
+    background: #f9fafb;
+    transition: all 0.2s ease;
+    color: var(--color-texto);
+    font-family: inherit; /* Heredar fuente Poppins */
+}
+
+/* Estado Focus */
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(232, 67, 147, 0.1);
+}
+
+/* Texto de ayuda */
+.form-help {
+    display: block;
+    color: #b2bec3;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+}
+
+
+/* ==========================================================================
+   4. INPUTS CON ICONOS (PREMIUM)
+   ========================================================================== */
+
+/* Wrapper para posicionar iconos absolutos */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Icono Izquierdo */
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #b2bec3;
+    font-size: 1rem;
+    pointer-events: none; /* El click atraviesa al input */
+    transition: color 0.3s;
+    z-index: 5;
+}
+
+/* Ajuste del input cuando tiene wrapper (icono izq) */
+.input-wrapper .form-control {
+    padding-left: 2.8rem; /* Espacio suficiente para el icono */
+}
+
+/* Al hacer focus en el input, colorear el icono hermano */
+.input-wrapper .form-control:focus ~ .input-icon {
+    color: var(--color-primario);
+}
+
+
+/* ==========================================================================
+   5. FUNCIONALIDAD PASSWORD (OJO)
+   ========================================================================== */
+.toggle-pass {
+    position: absolute;
+    right: 1rem;
+    color: #b2bec3;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color 0.3s;
+    z-index: 10; /* Encima del input */
+    padding: 5px; /* Aumentar área de click */
+}
+
+.toggle-pass:hover {
+    color: var(--color-primario);
+}
+
+/* Si tiene ojo a la derecha, damos espacio extra al input */
+.input-wrapper .form-control[type="password"],
+.input-wrapper .form-control[type="text"] { /* Cuando se revela */
+    padding-right: 2.8rem;
+}
+
+
+/* ==========================================================================
+   6. ESTADOS DE ERROR Y BOTONES
+   ========================================================================== */
+.error-msg {
+    color: #d63031;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: none; /* Se muestra con JS */
+    font-weight: 500;
+}
+
+/* Clase que agrega JS cuando falla la validación */
+.input-error {
+    border-color: #d63031 !important;
+    background-color: #fff5f5 !important;
+}
+
+/* Botones */
+.btn-secondary {
+    background: #dfe6e9;
+    color: #636e72;
+    box-shadow: none;
+}
+.btn-secondary:hover {
+    background: #ced6e0;
+    transform: translateY(-1px);
+}
+
+.btn-save {
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+}

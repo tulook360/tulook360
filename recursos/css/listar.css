@@ -1,0 +1,375 @@
+/* ==========================================================================
+   LISTAR.CSS - Estilos globales para pantallas de listado (CRUD)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CABECERA DE SECCIÓN (Título y Botón 'Nuevo')
+   -------------------------------------------------------------------------- */
+.section-header {
+    display: flex;
+    justify-content: space-between; /* Separa título a izq y botón a der */
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Para móviles */
+    gap: 1rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: var(--color-primario);
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+}
+
+.section-subtitle {
+    color: #b2bec3; /* Gris suave */
+    font-size: 0.95rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. SISTEMA DE PESTAÑAS (TABS - Activos / Papelera)
+   -------------------------------------------------------------------------- */
+.tabs-container {
+    display: flex;
+    gap: 2rem; /* Espacio entre pestañas */
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0; /* Línea base gris */
+}
+
+.tab-link {
+    text-decoration: none;
+    padding: 0.8rem 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #b2bec3; /* Gris inactivo */
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tab-link:hover {
+    color: var(--color-secundario); /* Rosa al pasar el mouse */
+}
+
+/* Estado Activo (Seleccionado) */
+.tab-link.active {
+    color: var(--color-primario); /* Color principal */
+}
+
+/* Línea animada debajo de la pestaña activa */
+.tab-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--color-primario);
+    border-radius: 3px 3px 0 0;
+    animation: expandWidth 0.3s ease; /* Animación de expansión */
+}
+
+@keyframes expandWidth {
+    from { width: 0; left: 50%; }
+    to { width: 100%; left: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   3. GRID DE TARJETAS (Contenedor Principal)
+   -------------------------------------------------------------------------- */
+.grid-cards {
+    display: grid;
+    /* Magia Responsive: Crea columnas de mínimo 300px */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    /* Animación de entrada al cargar */
+    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   4. DISEÑO DE LA TARJETA (Card Item)
+   -------------------------------------------------------------------------- */
+.card-item {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-item:hover {
+    transform: translateY(-5px); /* Se levanta un poco */
+    box-shadow: 0 10px 25px rgba(232, 67, 147, 0.15); /* Sombra rosa */
+    border-color: rgba(232, 67, 147, 0.2);
+}
+
+/* Decoración lateral (barra de color) al hacer hover */
+.card-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--color-primario);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.card-item:hover::before { opacity: 1; }
+
+
+/* --- Partes internas de la tarjeta --- */
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-id {
+    font-size: 0.8rem;
+    color: #b2bec3;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.card-body { margin-bottom: 1.5rem; }
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 8px;
+}
+
+.card-desc {
+    font-size: 0.9rem;
+    color: #636e72;
+    line-height: 1.5;
+}
+
+/* Footer de la tarjeta (Donde van los botones) */
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f2f6;
+}
+
+/* --------------------------------------------------------------------------
+   5. COMPONENTES AUXILIARES (Botones y Badges)
+   -------------------------------------------------------------------------- */
+
+/* Botón 'Nuevo' (Principal) */
+.btn-create {
+    background: var(--color-primario);
+    color: #fff;
+    padding: 0.7rem 1.2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.3);
+    transition: 0.2s;
+    display: flex; align-items: center; gap: 8px;
+}
+.btn-create:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(232, 67, 147, 0.4); 
+}
+
+/* Botones Icono (Redondos pequeños) */
+.btn-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; transition: 0.2s; font-size: 1rem;
+}
+
+/* Editar (Azul/Morado) */
+.btn-edit { background: #fff0f6; color: var(--color-primario); }
+.btn-edit:hover { background: var(--color-primario); color: #fff; }
+
+/* Eliminar (Rojo) */
+.btn-delete { background: #fff5f5; color: #ff7675; }
+.btn-delete:hover { background: #ff7675; color: #fff; }
+
+/* Restaurar (Verde) - CORREGIDO PARA QUE SE VEA */
+.btn-restore { background: #e1fcf0; color: #00b894; }
+.btn-restore:hover { background: #00b894; color: #fff; }
+
+/* Badges (Etiquetas de estado) */
+.badge {
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+}
+.badge-active { background: #e1fcf0; color: #00b894; }
+.badge-inactive { background: #ffeaa7; color: #fdcb6e; }
+
+/* --------------------------------------------------------------------------
+   6. ESTADO VACÍO
+   -------------------------------------------------------------------------- */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border-radius: 16px;
+    color: #b2bec3;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    display: block;
+}
+
+
+
+/* ... (otros estilos) ... */
+
+/* =========================================
+   BOTONES DE ACCIÓN ESPECÍFICOS
+   ========================================= */
+
+/* Botón Restaurar (Verde Intenso) */
+.btn-restore {
+    background-color: #00b894 !important; /* Forzamos el color verde */
+    color: #ffffff !important; /* Texto/Icono blanco */
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3); /* Sombra verde suave */
+}
+
+.btn-restore:hover {
+    background-color: #00a884 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 184, 148, 0.4);
+}
+
+/* Aseguramos que el icono dentro también sea blanco */
+.btn-restore i {
+    color: #ffffff !important;
+}
+
+
+
+/* =========================================
+   BARRA DE FILTROS (TOOLBAR) - CORREGIDO
+   ========================================= */
+.filters-bar {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px; 
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* ICONO LUPA (IZQUIERDA) */
+.search-icon {
+    position: absolute;
+    left: 1.2rem; /* Un poco más separado del borde */
+    color: #b2bec3;
+    font-size: 1rem;
+    z-index: 10; /* IMPORTANTE: Para que siempre esté encima del input */
+    pointer-events: none; /* Para que el click traspase al input */
+}
+
+/* INPUT DE TEXTO */
+.search-input {
+    width: 100%;
+    /* Aumentamos padding lateral para que el texto no toque los iconos */
+    padding: 0.8rem 3rem 0.8rem 3rem; 
+    background: #ffffff; 
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 50px; 
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    color: var(--color-texto);
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    position: relative;
+    z-index: 1; /* El input va debajo de los iconos */
+}
+
+.search-input:focus {
+    background: #fff;
+    border-color: var(--color-primario);
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.15);
+    transform: translateY(-1px);
+}
+
+/* ICONO CERRAR (DERECHA) */
+.clear-search {
+    position: absolute;
+    right: 1.2rem; /* Un poco más separado del borde */
+    color: #b2bec3;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex; 
+    align-items: center;
+    z-index: 10; /* IMPORTANTE: Para que esté encima y sea clickeable */
+    padding: 5px; /* Aumenta el área de click */
+}
+.clear-search:hover { color: #d63031; }
+
+.btn-filter {
+    padding: 0.8rem 1.8rem;
+    background: var(--color-primario);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 10px rgba(232, 67, 147, 0.2);
+}
+
+.btn-filter:hover {
+    background: var(--color-secundario);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(232, 67, 147, 0.3);
+}
+
+/* Ajuste móvil */
+@media (max-width: 768px) {
+    .filters-bar { padding: 0.8rem; }
+    .search-form { max-width: 100%; }
+}

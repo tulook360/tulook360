@@ -1,0 +1,1 @@
+<h1 style="color: var(--color-primario);">💼 Panel Dueño de Negocio</h1>
