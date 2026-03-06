@@ -1,6 +1,8 @@
 <?php
 // models/Usuario.php
 
+require_once __DIR__ . '/../nucleo/TimeHelper.php';
+
 class UsuarioModelo {
     
     private $pdo;
@@ -446,21 +448,43 @@ class UsuarioModelo {
     // RECUPERACIÓN DE CONTRASEÑA Y DESBLOQUEO
     // ====================================================================
 
+    // ====================================================================
+    // RECUPERACIÓN DE CONTRASEÑA Y DESBLOQUEO
+    // ====================================================================
+
     public function crearTokenRecuperacion($idUsuario, $token) {
-        $expira = date('Y-m-d H:i:s', strtotime('+1 hour')); // 1 hora de vida
+        // USAMOS TU TIMEHELPER: Sumamos 60 minutos a la hora exacta de Ecuador
+        $expira = TimeHelper::addMinutes(60); 
+        
         $sql = "INSERT INTO tbl_recuperacion (usu_id, rec_token, rec_expira, rec_estado) 
                 VALUES (:uid, :tok, :exp, 'A')";
-        return $this->pdo->prepare($sql)->execute([':uid' => $idUsuario, ':tok' => $token, ':exp' => $expira]);
+                
+        return $this->pdo->prepare($sql)->execute([
+            ':uid' => $idUsuario, 
+            ':tok' => $token, 
+            ':exp' => $expira
+        ]);
     }
 
     public function validarToken($token) {
+        // USAMOS TU TIMEHELPER: Obtenemos la hora actual exacta de Ecuador
+        $ahoraEcuador = TimeHelper::now();
+        
+        // Comparamos usando la hora de PHP en vez del NOW() de la base de datos
         $sql = "SELECT r.*, u.usu_correo, u.usu_nombres 
                 FROM tbl_recuperacion r
                 INNER JOIN tbl_usuario u ON r.usu_id = u.usu_id
-                WHERE r.rec_token = :tok AND r.rec_estado = 'A' AND r.rec_expira > NOW() 
+                WHERE r.rec_token = :tok 
+                  AND r.rec_estado = 'A' 
+                  AND r.rec_expira > :ahora 
                 LIMIT 1";
+                
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':tok' => $token]);
+        $stmt->execute([
+            ':tok' => $token,
+            ':ahora' => $ahoraEcuador
+        ]);
+        
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
