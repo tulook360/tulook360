@@ -1,7 +1,6 @@
 <?php
 // models/Usuario.php
 
-require_once __DIR__ . '/../nucleo/TimeHelper.php';
 
 class UsuarioModelo {
     
@@ -448,12 +447,10 @@ class UsuarioModelo {
     // RECUPERACIÓN DE CONTRASEÑA Y DESBLOQUEO
     // ====================================================================
 
-    // ====================================================================
-    // RECUPERACIÓN DE CONTRASEÑA Y DESBLOQUEO
-    // ====================================================================
-
     public function crearTokenRecuperacion($idUsuario, $token) {
-        // USAMOS TU TIMEHELPER: Sumamos 60 minutos a la hora exacta de Ecuador
+        // LO PONEMOS AQUÍ ADENTRO
+        require_once __DIR__ . '/../nucleo/TimeHelper.php';
+        
         $expira = TimeHelper::addMinutes(60); 
         
         $sql = "INSERT INTO tbl_recuperacion (usu_id, rec_token, rec_expira, rec_estado) 
@@ -467,10 +464,11 @@ class UsuarioModelo {
     }
 
     public function validarToken($token) {
-        // USAMOS TU TIMEHELPER: Obtenemos la hora actual exacta de Ecuador
+        // Y LO PONEMOS AQUÍ ADENTRO TAMBIÉN
+        require_once __DIR__ . '/../nucleo/TimeHelper.php';
+        
         $ahoraEcuador = TimeHelper::now();
         
-        // Comparamos usando la hora de PHP en vez del NOW() de la base de datos
         $sql = "SELECT r.*, u.usu_correo, u.usu_nombres 
                 FROM tbl_recuperacion r
                 INNER JOIN tbl_usuario u ON r.usu_id = u.usu_id
