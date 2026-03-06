@@ -46,6 +46,30 @@ class UsuarioModelo {
     }
 
 
+    // Sumar un intento fallido y devolver cuántos lleva
+    public function registrarIntentoFallido($idUsuario) {
+        $sql = "UPDATE tbl_usuario SET usu_intentos = usu_intentos + 1 WHERE usu_id = :id";
+        $this->pdo->prepare($sql)->execute([':id' => $idUsuario]);
+        
+        // Consultar cuántos intentos tiene ahora
+        $stmt = $this->pdo->prepare("SELECT usu_intentos FROM tbl_usuario WHERE usu_id = :id");
+        $stmt->execute([':id' => $idUsuario]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    // Cambiar estado del usuario a Bloqueado ('B')
+    public function bloquearUsuario($idUsuario) {
+        $sql = "UPDATE tbl_usuario SET usu_estado = 'B' WHERE usu_id = :id";
+        return $this->pdo->prepare($sql)->execute([':id' => $idUsuario]);
+    }
+
+    // Poner los intentos en 0 si logra iniciar sesión correctamente
+    public function resetearIntentos($idUsuario) {
+        $sql = "UPDATE tbl_usuario SET usu_intentos = 0 WHERE usu_id = :id";
+        return $this->pdo->prepare($sql)->execute([':id' => $idUsuario]);
+    }
+
+
     // ====================================================================
     // 2. PERFIL DE USUARIO (Lectura y Edición Personal)
     // ====================================================================
@@ -413,6 +437,48 @@ class UsuarioModelo {
 
         } catch (PDOException $e) {
             // Si hay error (ej: duplicado que se pasó el filtro), retornamos false
+            return false;
+        }
+    }
+
+
+    // ====================================================================
+    // RECUPERACIÓN DE CONTRASEÑA Y DESBLOQUEO
+    // ====================================================================
+
+    public function crearTokenRecuperacion($idUsuario, $token) {
+        $expira = date('Y-m-d H:i:s', strtotime('+1 hour')); // 1 hora de vida
+        $sql = "INSERT INTO tbl_recuperacion (usu_id, rec_token, rec_expira, rec_estado) 
+                VALUES (:uid, :tok, :exp, 'A')";
+        return $this->pdo->prepare($sql)->execute([':uid' => $idUsuario, ':tok' => $token, ':exp' => $expira]);
+    }
+
+    public function validarToken($token) {
+        $sql = "SELECT r.*, u.usu_correo, u.usu_nombres 
+                FROM tbl_recuperacion r
+                INNER JOIN tbl_usuario u ON r.usu_id = u.usu_id
+                WHERE r.rec_token = :tok AND r.rec_estado = 'A' AND r.rec_expira > NOW() 
+                LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':tok' => $token]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function aplicarRecuperacionYDesbloqueo($idUsuario, $hashNuevaClave, $token) {
+        try {
+            $this->pdo->beginTransaction();
+            // Cambia clave, activa cuenta ('A') y resetea intentos
+            $sql1 = "UPDATE tbl_usuario SET usu_contrasena = :hash, usu_estado = 'A', usu_intentos = 0 WHERE usu_id = :uid";
+            $this->pdo->prepare($sql1)->execute([':hash' => $hashNuevaClave, ':uid' => $idUsuario]);
+
+            // Quema el token ('U' de Usado)
+            $sql2 = "UPDATE tbl_recuperacion SET rec_estado = 'U' WHERE rec_token = :tok";
+            $this->pdo->prepare($sql2)->execute([':tok' => $token]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
             return false;
         }
     }

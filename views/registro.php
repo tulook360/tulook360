@@ -348,6 +348,10 @@
 
     <div class="reg-form-area">
         
+        <a href="<?= ruta_vista('login.php', [], false) ?>" style="color: var(--text-gray); text-decoration: none; font-weight: 500; font-size: 0.95rem; display: inline-flex; align-items: center; margin-bottom: 30px; width: fit-content; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-gray)'">
+            <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i> Inicio
+        </a>
+
         <div style="margin-bottom: 30px;">
             <h2 style="margin: 0; color: var(--dark); font-size: 1.8rem;">Crear Cuenta</h2>
             <p style="color: var(--text-gray);">Configura tu negocio en 3 simples pasos.</p>

@@ -4,6 +4,8 @@ require_once __DIR__ . '/../nucleo/helpers.php'; // Para usar ruta_vista()
 require_once __DIR__ . '/../models/Negocio.php';
 require_once __DIR__ . '/../nucleo/CloudinaryUploader.php';
 require_once __DIR__ . '/../nucleo/TimeHelper.php'; // <--- IMPORTANTE
+require_once __DIR__ . '/../nucleo/BrevoMailer.php';
+require_once __DIR__ . '/../models/Usuario.php';
 
 class AuthControlador {
 
@@ -14,7 +16,6 @@ class AuthControlador {
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            // Si intentan entrar por GET, mandar al login
             header('Location: ' . ruta_vista('login.php'));
             exit;
         }
@@ -23,8 +24,8 @@ class AuthControlador {
         $clave  = trim($_POST['password'] ?? '');
 
         if ($correo === '' || $clave === '') {
-            $url = ruta_vista('login.php', ['error' => 'Por favor complete todos los campos.']);
-            header("Location: $url");
+            $msg = urlencode('Por favor complete todos los campos.');
+            header("Location: " . ruta_vista('login.php', [], false) . "&error=$msg");
             exit;
         }
 
@@ -32,32 +33,63 @@ class AuthControlador {
         $db = new Database();
         $pdo = $db->getConnection();
 
-        // 3. Buscar usuario activo por correo
-        // Hacemos JOIN con Rol para tener el nombre del rol disponible
+        // 3. Buscar usuario por correo (Sin filtrar estado para detectar bloqueos)
         $sql = "SELECT u.*, r.rol_nombre 
                 FROM tbl_usuario u
                 INNER JOIN tbl_rol r ON u.rol_id = r.rol_id
                 WHERE u.usu_correo = :correo 
-                  AND u.usu_estado = 'A' 
                 LIMIT 1";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':correo' => $correo]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // 4. Verificaciones
+        // 4. Verificaciones de Existencia y Estado
         if (!$usuario) {
-            $url = ruta_vista('login.php', ['error' => 'Credenciales incorrectas o usuario inactivo.']);
-            header("Location: $url");
+            $msg = urlencode('Credenciales incorrectas.');
+            header("Location: " . ruta_vista('login.php', [], false) . "&error=$msg");
             exit;
         }
 
+        // Verificamos si la cuenta está bloqueada o inactiva
+        if ($usuario['usu_estado'] === 'B') {
+            $msg = urlencode('Tu cuenta ha sido bloqueada por seguridad (3 intentos fallidos). Contacta a soporte.');
+            header("Location: " . ruta_vista('login.php', [], false) . "&error=$msg");
+            exit;
+        } elseif ($usuario['usu_estado'] !== 'A') {
+            $msg = urlencode('Este usuario se encuentra inactivo.');
+            header("Location: " . ruta_vista('login.php', [], false) . "&error=$msg");
+            exit;
+        }
+
+        // Cargamos el modelo de Usuario para usar las funciones de intentos
+        require_once __DIR__ . '/../models/Usuario.php';
+        $modeloUsuario = new UsuarioModelo($pdo);
+
         // Verificar contraseña usando el hash
         if (!password_verify($clave, $usuario['usu_contrasena'])) {
-            // Opcional: Aquí podrías aumentar el contador de intentos fallidos en la BD
-            $url = ruta_vista('login.php', ['error' => 'Contraseña incorrecta.']);
-            header("Location: $url");
+            
+            // Registramos el error y vemos cuántos lleva
+            $intentosActuales = $modeloUsuario->registrarIntentoFallido($usuario['usu_id']);
+            
+            if ($intentosActuales >= 3) {
+                // Bloqueamos la cuenta
+                $modeloUsuario->bloquearUsuario($usuario['usu_id']);
+                $msg = urlencode('Demasiados intentos. Tu cuenta ha sido bloqueada por seguridad.');
+            } else {
+                // Le avisamos cuántos intentos le quedan
+                $restantes = 3 - $intentosActuales;
+                $msg = urlencode("Contraseña incorrecta. Te quedan $restantes intento(s).");
+            }
+            
+            // Redirigir enviando el error de forma segura en la URL
+            header("Location: " . ruta_vista('login.php', [], false) . "&error=$msg");
             exit;
+        }
+
+        // Reseteamos los intentos a 0 si logra entrar
+        if ($usuario['usu_intentos'] > 0) {
+            $modeloUsuario->resetearIntentos($usuario['usu_id']);
         }
 
         // 5. Login Exitoso: Guardar datos en Sesión
@@ -66,13 +98,10 @@ class AuthControlador {
         $_SESSION['usuario_rol']    = $usuario['rol_nombre'];
         $_SESSION['rol_id']         = $usuario['rol_id'];
         $_SESSION['negocio_id']     = $usuario['neg_id'];
-        
-        // [NUEVO] Guardamos la foto del usuario (puede ser null)
         $_SESSION['usuario_foto']   = $usuario['usu_foto']; 
 
         // --- OBTENER BRANDING DEL NEGOCIO ---
         if ($usuario['neg_id']) {
-            // Traemos nombre, icono Y LOGO del negocio
             $sqlBrand = "SELECT n.neg_nombre, n.neg_logo, t.tneg_icono 
                          FROM tbl_negocio n
                          INNER JOIN tbl_tipo_negocio t ON n.tneg_id = t.tneg_id
@@ -85,7 +114,6 @@ class AuthControlador {
             if ($branding) {
                 $_SESSION['app_brand_name'] = $branding['neg_nombre'];
                 $_SESSION['app_brand_icon'] = $branding['tneg_icono'];
-                // [NUEVO] Guardamos el logo del negocio
                 $_SESSION['app_brand_logo'] = $branding['neg_logo']; 
             } else {
                 $_SESSION['app_brand_name'] = 'Tu Negocio';
@@ -93,10 +121,9 @@ class AuthControlador {
                 $_SESSION['app_brand_logo'] = null;
             }
         } else {
-            // Es Super Admin
             $_SESSION['app_brand_name'] = 'TuLook360';
             $_SESSION['app_brand_icon'] = 'fa-scissors';
-            $_SESSION['app_brand_logo'] = null; // Usará el por defecto
+            $_SESSION['app_brand_logo'] = null;
         }
 
         // 6. Redirigir al Panel
@@ -465,6 +492,116 @@ class AuthControlador {
             echo json_encode(['success' => true, 'redirect' => ruta_accion('auth', 'panel')]);
         } else {
             echo json_encode(['success' => false, 'msg' => 'No se pudo guardar la información.']);
+        }
+        exit;
+    }
+
+    
+
+
+    // ====================================================================
+    // SISTEMA DE RECUPERACIÓN Y DESBLOQUEO (VISTA 3 PASOS - CÓDIGO OTP)
+    // ====================================================================
+
+    // 1. Carga la vista principal vacía
+    public function recuperarAccount() {
+        require __DIR__ . '/../views/recuperar.php';
+    }
+
+    // 2. Generar y enviar el código de 6 dígitos
+    public function solicitarRecuperacionAjax() {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        $correo = trim($_POST['email'] ?? '');
+        if (empty($correo)) {
+            echo json_encode(['success' => false, 'msg' => 'Ingresa un correo.']);
+            exit;
+        }
+
+        $db = new Database();
+        $modelo = new UsuarioModelo($db->getConnection());
+        $usuario = $modelo->buscarPorCorreo($correo);
+
+        if (!$usuario) {
+            echo json_encode(['success' => true, 'msg' => 'Si el correo existe, enviaremos el código.']);
+            exit;
+        }
+
+        // Generar código numérico de 6 dígitos (Ej: 482910)
+        $codigoOTP = sprintf("%06d", mt_rand(100000, 999999));
+        
+        if ($modelo->crearTokenRecuperacion($usuario['usu_id'], $codigoOTP)) {
+            // Le pasamos el código al enviador de Brevo en lugar del enlace
+            $enviado = BrevoMailer::enviarRecuperacion($usuario['usu_correo'], $usuario['usu_nombres'], $codigoOTP);
+
+            if ($enviado) {
+                echo json_encode(['success' => true, 'msg' => 'Código enviado. Revisa tu correo.']);
+            } else {
+                echo json_encode(['success' => false, 'msg' => 'Error al enviar el correo.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'msg' => 'Error de base de datos.']);
+        }
+        exit;
+    }
+
+    // 3. Validar si el código introducido por el usuario es correcto
+    public function verificarCodigoRecuperacionAjax() {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        $codigo = trim($_POST['codigo'] ?? '');
+        if (empty($codigo)) {
+            echo json_encode(['success' => false, 'msg' => 'Ingresa el código.']);
+            exit;
+        }
+
+        $db = new Database();
+        $modelo = new UsuarioModelo($db->getConnection());
+        $datos = $modelo->validarToken($codigo);
+
+        if ($datos) {
+            echo json_encode(['success' => true, 'nombre' => $datos['usu_nombres']]);
+        } else {
+            echo json_encode(['success' => false, 'msg' => 'El código es incorrecto o ha expirado.']);
+        }
+        exit;
+    }
+
+    // 4. Guardar la nueva contraseña usando el código verificado
+    public function guardarNuevaPasswordAjax() {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        $codigo = trim($_POST['codigo'] ?? ''); // Ahora recibimos el código
+        $pass1 = $_POST['pass1'] ?? '';
+        $pass2 = $_POST['pass2'] ?? '';
+
+        if (empty($codigo) || empty($pass1) || $pass1 !== $pass2) {
+            echo json_encode(['success' => false, 'msg' => 'Las contraseñas no coinciden.']);
+            exit;
+        }
+
+        $db = new Database();
+        $modelo = new UsuarioModelo($db->getConnection());
+        $datosToken = $modelo->validarToken($codigo);
+
+        if (!$datosToken) {
+            echo json_encode(['success' => false, 'msg' => 'Código inválido o expirado.']);
+            exit;
+        }
+
+        $hash = password_hash($pass1, PASSWORD_BCRYPT);
+        
+        if ($modelo->aplicarRecuperacionYDesbloqueo($datosToken['usu_id'], $hash, $codigo)) {
+            echo json_encode([
+                'success' => true, 
+                'msg' => '¡Contraseña actualizada!',
+                'redirect' => ruta_vista('login.php', [], false)
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'msg' => 'Error al guardar.']);
         }
         exit;
     }

@@ -18,8 +18,12 @@ $accionSolicitada = $_GET['a'] ?? $_GET['m'] ?? '';
 $accionesPublicasPermitidas = [
     'verificar_correo_ajax', 
     'guardarRegistro', 
+    'guardarCliente',
     'buscar_ajax',
-    'listar_negocios_ajax'    
+    'listar_negocios_ajax',
+    'solicitarRecuperacionAjax',
+    'verificarCodigoRecuperacionAjax',
+    'guardarNuevaPasswordAjax'
 ];
 
 $esVerificacionPublica = (
@@ -125,6 +129,9 @@ $accionesAjax = [
     'cambiar_estado_promo_ajax',
     'cancelar_cita_ajax',
     'reanudar_promo_ajax',
+    'solicitarRecuperacionAjax',
+    'verificarCodigoRecuperacionAjax',
+    'guardarNuevaPasswordAjax'
 ];
 
 // SI ES AJAX, ASEGURARNOS DE NO CARGAR LAYOUT HTML
@@ -169,6 +176,10 @@ try {
             'publico/consultar_estado_ruta_ajax',
             'publico/cancelar_pedido_ajax',
             'publico/procesar_resena_ajax',
+            'auth/recuperarAccount', 
+            'auth/solicitarRecuperacionAjax', 
+            'auth/verificarCodigoRecuperacionAjax', // <--- ¡ESTA ES LA QUE FALTABA!
+            'auth/guardarNuevaPasswordAjax' 
         ];
 
         if (!in_array($rutaActual, $rutasPublicas)) {

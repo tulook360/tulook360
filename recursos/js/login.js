@@ -1,68 +1,47 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
 
-    // ============================
-    // Mostrar / ocultar contraseña
-    // ============================
-    const passInput = document.getElementById('password');
-    const toggleBtn = document.getElementById('togglePassword');
+    // 1. Mostrar/Ocultar Contraseña
+    const btnTogglePass = document.getElementById('btnTogglePass');
+    const inputPass = document.getElementById('iPass');
 
-    if (passInput && toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            const isHidden = passInput.type === 'password';
-            passInput.type = isHidden ? 'text' : 'password';
-
-            toggleBtn.classList.toggle('fa-eye');
-            toggleBtn.classList.toggle('fa-eye-slash');
+    if (btnTogglePass && inputPass) {
+        btnTogglePass.addEventListener('click', () => {
+            const type = inputPass.getAttribute('type') === 'password' ? 'text' : 'password';
+            inputPass.setAttribute('type', type);
+            
+            // Cambiar el ícono
+            const icon = btnTogglePass.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         });
     }
 
-    // ============================
-    // Desvanecer alerta de error
-    // ============================
-    const alerta = document.querySelector('.alerta-error');
-    if (alerta) {
-        setTimeout(() => {
-            alerta.classList.add('alerta-oculta');
-            setTimeout(() => alerta.remove(), 600);
-        }, 3000);
+    // 2. Validación en tiempo real para habilitar botón
+    const iEmail = document.getElementById('iEmail');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    const checkFields = () => {
+        // Validación básica de correo (mínimo 6 chars y arroba) y clave no vacía
+        const emailValid = iEmail.value.trim().length > 5 && iEmail.value.includes('@');
+        const passValid = inputPass.value.trim().length > 0;
+        
+        // Si ambos campos tienen datos lógicos, habilita el botón rosa
+        btnSubmit.disabled = !(emailValid && passValid);
+    };
+
+    if (iEmail && inputPass) {
+        iEmail.addEventListener('input', checkFields);
+        inputPass.addEventListener('input', checkFields);
     }
 
-    // ============================
-    // Validación del formulario
-    // ============================
-    const form = document.getElementById('formLogin');
-    if (!form) return;
-
-    form.addEventListener('submit', function (e) {
-
-        const emailInput = document.getElementById('email');
-        const passInput  = document.getElementById('password');
-
-        const emailError = emailInput.parentElement.querySelector('.msg-error');
-        const passError  = passInput.parentElement.querySelector('.msg-error');
-
-        // Reiniciar mensajes
-        emailError.textContent = '';
-        passError.textContent = '';
-        emailError.classList.remove('mostrar');
-        passError.classList.remove('mostrar');
-
-        let hayErrores = false;
-
-        if (emailInput.value.trim() === '') {
-            emailError.textContent = 'El correo es obligatorio';
-            emailError.classList.add('mostrar');
-            hayErrores = true;
-        }
-
-        if (passInput.value.trim() === '') {
-            passError.textContent = 'La contraseña es obligatoria';
-            passError.classList.add('mostrar');
-            hayErrores = true;
-        }
-
-        if (hayErrores) {
-            e.preventDefault();
-        }
-    });
+    // 3. Efecto visual al enviar (Spinner)
+    const formLogin = document.getElementById('formLogin');
+    if (formLogin) {
+        formLogin.addEventListener('submit', function() {
+            if (!btnSubmit.disabled) {
+                btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Entrando...';
+                btnSubmit.disabled = true; // Evitar doble click
+            }
+        });
+    }
 });
