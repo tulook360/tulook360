@@ -16,13 +16,15 @@ $fechaInicioMes = date('Y-m-01');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-    /* 1. CONTENEDOR Y CABECERA MAESTRA (TU CÓDIGO ORIGINAL INTACTO) */
+    /* ========================================================
+       1. CONTENEDOR Y CABECERA MAESTRA
+       ======================================================== */
     .dashboard-wrapper {
         padding: 5px; 
         background-color: transparent !important;
         font-family: 'Poppins', sans-serif;
         width: 100%;
-        max-width: 100vw;
+        max-width: 100%; 
         overflow-x: hidden;
         box-sizing: border-box;
     }
@@ -32,78 +34,135 @@ $fechaInicioMes = date('Y-m-01');
     .titulo-principal i { color: #ff3366; margin-right: 8px; font-size: 1.8rem; }
     .subtitulo { font-size: 0.95rem; color: #64748b; margin: 0; font-weight: 500; }
 
-    /* 2. REJILLAS */
-    .kpi-grid-50, .kpi-grid-33 { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 25px; }
+    /* 2. REJILLAS FLUIDAS */
+    .kpi-grid-50, .kpi-grid-33 { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 25px; width: 100%; }
 
-    /* 3. TARJETAS Y ELEMENTOS INTERNOS */
+    /* ========================================================
+       3. TARJETAS Y ELEMENTOS INTERNOS
+       ======================================================== */
     .kpi-card {
-        background: #ffffff; border-radius: 20px; padding: 12px;
+        background: #ffffff; border-radius: 20px; padding: 15px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9;
         display: flex; flex-direction: column; width: 100%; box-sizing: border-box; overflow: hidden; 
     }
-    .kpi-card-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .kpi-title-box { display: flex; align-items: center; }
-    .kpi-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-right: 12px; }
-    .kpi-name { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
     
-    /* El número grande que te gusta (Debajo de la cabecera, jamás chocará con el filtro) */
+    /* Cabecera por defecto (Móvil) */
+    .kpi-card-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .kpi-title-box { display: flex; align-items: center; min-width: 0; }
+    .kpi-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-right: 12px; flex-shrink: 0;}
+    
+    /* CORRECCIÓN: Títulos más pequeños y con permiso de bajar de línea (Adiós a los ...) */
+    .kpi-name { 
+        font-size: 0.75rem; 
+        font-weight: 800; 
+        color: #64748b; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
+        margin: 0; 
+        white-space: normal; /* Permite bajar de línea */
+        line-height: 1.2; 
+    }
+    
+    /* El número grande */
     .kpi-valor-principal { font-size: 3.2rem; font-weight: 800; color: #0f172a; letter-spacing: -1px; margin: 0 0 20px 0; line-height: 1; word-wrap: break-word; }
 
-    /* 4. FILTROS EN MÓVIL (TU DISEÑO ORIGINAL PERFECTO) */
-    .master-filter-box { background: #ffffff; padding: 15px; border-radius: 20px; border: 1px solid #ff3366; box-shadow: 0 10px 25px rgba(255, 51, 102, 0.1); display: flex; flex-direction: column; gap: 10px; }
-    .smart-filter { background: #f8fafc; border-radius: 16px; padding: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    .fechas-wrapper { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 12px; }
-    .date-input-group { display: flex; flex-direction: column; width: 45%; }
-    .date-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+    /* ========================================================
+       4. FILTROS EN MÓVIL (DISEÑO ORIGINAL)
+       ======================================================== */
+    .master-filter-box { background: #ffffff; padding: 15px; border-radius: 20px; border: 1px solid #ff3366; box-shadow: 0 10px 25px rgba(255, 51, 102, 0.1); display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box; }
+    .smart-filter { background: #f8fafc; border-radius: 16px; padding: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box; }
+    .fechas-wrapper { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 12px; flex-wrap: wrap; }
+    .date-input-group { display: flex; flex-direction: column; width: 45%; flex-grow: 1; }
+    .date-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; text-align: center; }
     .smart-input { width: 100%; border: none; background: transparent; font-size: 0.8rem; font-weight: 600; color: #1e293b; padding: 0; font-family: 'Poppins', sans-serif; outline: none; }
     .separator { color: #cbd5e1; font-weight: bold; margin: 0 5px; }
     .smart-btn, .btn-master { background: #10b981; color: white; border: none; border-radius: 12px; padding: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
-    .btn-master { background: #ff3366; border-radius: 50px; font-weight: 700; width: auto; white-space: nowrap; }
+    .btn-master { background: #ff3366; border-radius: 50px; font-weight: 700; width: auto; white-space: nowrap; flex-grow: 1; }
 
-    /* 5. DESGLOSES */
+    /* ========================================================
+       5. DESGLOSES
+       ======================================================== */
     .desglose-grid, .grid-3-citas { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
     .grid-3-citas .desglose-caja:last-child { grid-column: span 2; }
-    .desglose-caja { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 14px; padding: 12px 15px; display: flex; flex-direction: column; justify-content: center; }
+    .desglose-caja { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 14px; padding: 12px 15px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     .desglose-header { display: flex; align-items: center; margin-bottom: 5px; }
     .desglose-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
     .desglose-valor { font-size: 1.3rem; font-weight: 800; color: #1e293b; word-wrap: break-word; }
-    .punto { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+    .punto { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
     .punto-servicios { background-color: #ff3366; }
     .punto-productos { background-color: #3b82f6; }
     .chart-box { position: relative; width: 100%; }
     .empty-chart-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #94a3b8; text-align: center; padding: 20px; }
     .empty-chart-container i { font-size: 3rem; margin-bottom: 10px; opacity: 0.3; }
 
-    /* 6. PC (DESKTOP) */
+    /* ========================================================
+       6. PC (DESKTOP) - AJUSTES DE ESPACIO
+       ======================================================== */
     @media (min-width: 768px) {
         .dashboard-wrapper { padding: 30px 10px; }
-        .kpi-card { padding: 30px; border-radius: 24px; }
-        .master-filter-box { flex-direction: row; align-items: center; padding: 10px 20px; border-radius: 50px; }
+        .kpi-card { padding: 25px; border-radius: 24px; }
         .grid-3-citas { grid-template-columns: repeat(3, 1fr); }
         .grid-3-citas .desglose-caja:last-child { grid-column: span 1; }
     }
+    
     @media (min-width: 1024px) {
-        .master-header { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+        .master-header { flex-direction: row; justify-content: space-between; align-items: center; }
         
-        /* FILAS AL 50% */
-        .kpi-grid-50 { grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* Cabeceras de Tarjeta (Titulo Izq, Filtro Der) */
-        .kpi-card-header { flex-direction: row; justify-content: space-between; align-items: center; }
-
-        /* --- FILTROS COMPACTOS EN PC --- */
-        .smart-filter { 
-            flex-direction: row; align-items: center; padding: 4px; 
-            border-radius: 50px; width: max-content; background: #ffffff; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-            border: 1px solid #cbd5e1; 
-            flex-shrink: 0; /* EVITA QUE SE APLASTE */
+        /* 1. FILTRO MAESTRO: Etiquetas ARRIBA de las fechas para ahorrar ancho */
+        .master-filter-box { 
+            flex-direction: row !important; 
+            align-items: center !important; 
+            width: max-content !important; 
+            padding: 6px 12px !important; 
+            border-radius: 50px !important; 
         }
-        .fechas-wrapper { border: none; padding: 0 8px; background: transparent; }
-        .date-input-group { width: auto; flex-direction: row; align-items: center; }
-        .smart-input { width: 95px !important; text-align: center; font-size: 0.8rem; }
-        .smart-btn { width: 34px; height: 34px; border-radius: 50px; padding: 0; margin-left: 2px; flex-shrink: 0; }
-        .smart-btn span, .date-label { display: none !important; }
+        .master-filter-box > div { width: auto !important; flex-wrap: nowrap !important; align-items: center; }
+        .master-filter-box .fechas-wrapper { border: none; padding: 0 10px; background: transparent; flex-wrap: nowrap; }
+        
+        .master-filter-box .date-input-group { 
+            flex-direction: column !important; /* Palabras arriba, input abajo */
+            align-items: center !important; 
+            gap: 2px !important; 
+            width: auto; 
+        }
+        .master-filter-box .date-label { 
+            margin: 0 !important; 
+            font-size: 0.55rem !important; /* Etiqueta sutil para ahorrar espacio */
+            line-height: 1;
+        }
+        .master-filter-box .separator { margin-top: 10px; } /* Ajuste sutil para centrar el guión con los inputs */
+
+        .btn-master { flex: 0 0 auto !important; padding: 10px 20px !important; width: max-content !important; }
+
+        /* 2. REJILLAS LÍQUIDAS */
+        .kpi-grid-50 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+        
+        /* 3. CABECERAS DE TARJETA: ¡OBLIGATORIAMENTE EN 1 FILA! */
+        .kpi-card-header { 
+            flex-direction: row !important; 
+            justify-content: space-between !important; 
+            align-items: center !important; 
+            flex-wrap: nowrap !important; 
+        }
+        .kpi-title-box { margin-right: 15px; }
+
+        /* 4. FILTROS COMPACTOS EN PC */
+        .smart-filter { 
+            flex-direction: row !important; 
+            align-items: center !important; 
+            padding: 4px !important; 
+            border-radius: 50px !important; 
+            width: max-content !important; 
+            background: #ffffff !important; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important; 
+            border: 1px solid #cbd5e1 !important; 
+            flex-shrink: 0 !important; 
+        }
+        .smart-filter .fechas-wrapper { border: none !important; padding: 0 8px !important; background: transparent !important; flex-wrap: nowrap !important; }
+        .smart-filter .date-input-group { width: auto !important; flex-direction: row !important; align-items: center !important; }
+        .smart-filter .smart-input { width: 95px !important; text-align: center !important; font-size: 0.8rem !important; }
+        .smart-filter .smart-btn { width: 34px !important; height: 34px !important; border-radius: 50px !important; padding: 0 !important; margin-left: 2px !important; flex-shrink: 0 !important; }
+        .smart-filter .smart-btn span, .smart-filter .date-label { display: none !important; }
     }
 </style>
 
@@ -629,30 +688,61 @@ $fechaInicioMes = date('Y-m-01');
 
 
     // ==========================================
-    // LÓGICA PARA EXPORTAR A PDF (INVISIBLE Y PERFECTO)
+    // LÓGICA PARA EXPORTAR A PDF (ADAPTADA AL DISEÑO LÍQUIDO)
     // ==========================================
     async function generarPDF() {
         const btnPdf = document.getElementById('btnGenerarPdf');
         const loading = document.getElementById('pdfLoading');
         
-        // 1. Mostrar estado de carga (sin ocultar nada más)
+        const dashboard = document.querySelector('.dashboard-wrapper');
+        const controlesMaestros = document.querySelector('.master-header');
+        const grids = document.querySelectorAll('.kpi-grid-50');
+        const cards = document.querySelectorAll('.kpi-card');
+
+        // 1. Mostrar estado de carga y ocultar botones maestros
         btnPdf.disabled = true;
         btnPdf.style.opacity = '0.5';
         loading.style.display = 'flex';
+        controlesMaestros.style.display = 'none';
 
-        // Subimos el scroll para evitar bugs visuales en html2canvas
+        // ========================================================
+        // FORZAMOS A 1 COLUMNA (100%) TEMPORALMENTE PARA EL PDF
+        // ========================================================
+        const originalMaxWidth = dashboard.style.maxWidth;
+        const originalMargin = dashboard.style.margin;
+        
+        dashboard.style.maxWidth = '800px';
+        dashboard.style.margin = '0 auto';
+
+        // Guardamos estilos originales de flexbox y forzamos 1 sola columna
+        const originalGridStyles = [];
+        grids.forEach(grid => {
+            originalGridStyles.push(grid.style.flexDirection);
+            grid.style.flexDirection = 'column'; 
+        });
+
+        // Hacemos que cada tarjeta ocupe el 100% en la foto
+        const originalCardStyles = [];
+        cards.forEach(card => {
+            originalCardStyles.push(card.style.width);
+            card.style.width = '100%';
+            card.style.marginBottom = '20px';
+        });
+
+        // Esperamos medio segundo a que las gráficas se redimensionen solas
+        await new Promise(r => setTimeout(r, 500)); 
         window.scrollTo(0, 0);
 
         try {
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' = Vertical (Portrait)
+            const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' = Vertical
             
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const margin = 15; 
-            let currentY = 30; // Altura inicial donde empezamos a pegar imágenes
+            let currentY = 30; 
 
-            // 2. Colocar el Título del Reporte (Centrado y elegante)
+            // 2. Colocar el Título del Reporte
             const f_ini = document.getElementById('f_ini_master').value;
             const f_fin = document.getElementById('f_fin_master').value;
             
@@ -663,57 +753,61 @@ $fechaInicioMes = date('Y-m-01');
             pdf.setFontSize(12);
             pdf.text(`Período: ${f_ini} hasta ${f_fin}`, pdfWidth / 2, 22, { align: "center" });
 
-            // 3. CAPTURAR Y APILAR TARJETAS SILENCIOSAMENTE
-            const cards = document.querySelectorAll('.kpi-card');
-            
+            // 3. CAPTURAR TARJETA POR TARJETA (Cero cortes)
             for (let i = 0; i < cards.length; i++) {
                 const card = cards[i];
                 
-                // Le tomamos foto a la tarjeta tal cual está (no altera la UI)
                 const canvas = await html2canvas(card, {
                     scale: 2, 
                     useCORS: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff' 
                 });
 
                 const imgData = canvas.toDataURL('image/png');
                 
-                // Calculamos el ancho de la tarjeta en el PDF
                 let imgWidth = pdfWidth - (margin * 2);
                 let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                // SEGURO ANTI-HOJAS EN BLANCO (Para Móviles)
-                // Si la tarjeta es más alta que la hoja entera, la escalamos hacia abajo
+                // Seguro anti-hojas en blanco para gráficas muy altas
                 const maxAllowedHeight = pdfHeight - (margin * 2);
                 if (imgHeight > maxAllowedHeight) {
                     imgHeight = maxAllowedHeight;
                     imgWidth = (canvas.width * imgHeight) / canvas.height;
                 }
 
-                // Si al sumar esta tarjeta nos pasamos del largo de la hoja, creamos hoja nueva
                 if (currentY + imgHeight > pdfHeight - margin) {
                     pdf.addPage();
                     currentY = margin; 
                 }
 
-                // Centramos la tarjeta horizontalmente (útil si se encogió)
                 const xPos = (pdfWidth - imgWidth) / 2;
-
-                // Pegamos la imagen en el PDF
                 pdf.addImage(imgData, 'PNG', xPos, currentY, imgWidth, imgHeight);
-                
-                // Bajamos la coordenada Y para la siguiente tarjeta
                 currentY += imgHeight + 10; 
             }
 
-            // 4. Guardar el archivo
+            // 4. Descargar
             pdf.save(`Reporte_TuLook360_${f_ini}_al_${f_fin}.pdf`);
 
         } catch (error) {
             console.error("Error al generar PDF: ", error);
             alert("Ocurrió un error al generar el reporte.");
         } finally {
-            // 5. Restaurar botón
+            // ========================================================
+            // DEVOLVEMOS TU PC AL ESTADO FLUIDO (2 COLUMNAS)
+            // ========================================================
+            dashboard.style.maxWidth = originalMaxWidth;
+            dashboard.style.margin = originalMargin;
+            
+            grids.forEach((grid, i) => {
+                grid.style.flexDirection = originalGridStyles[i] || ''; 
+            });
+
+            cards.forEach((card, i) => {
+                card.style.width = originalCardStyles[i] || '';
+                card.style.marginBottom = '';
+            });
+
+            controlesMaestros.style.display = 'flex';
             loading.style.display = 'none';
             btnPdf.disabled = false;
             btnPdf.style.opacity = '1';
