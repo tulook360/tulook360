@@ -131,7 +131,13 @@ $accionesAjax = [
     'reanudar_promo_ajax',
     'solicitarRecuperacionAjax',
     'verificarCodigoRecuperacionAjax',
-    'guardarNuevaPasswordAjax'
+    'guardarNuevaPasswordAjax',
+    'resumen_ajax',   // <-- AGREGAR ESTA
+    'graficas_ajax',  // <-- AGREGAR ESTA
+    'ranking_ajax',
+    'citas_ajax',
+    'top_servicios_ajax',
+    'ventas_cat_ajax'
 ];
 
 // SI ES AJAX, ASEGURARNOS DE NO CARGAR LAYOUT HTML
@@ -188,8 +194,20 @@ try {
                 header('Location: index.php'); exit;
             }
 
+            // VÍA LIBRE PARA EL DASHBOARD DE MÉTRICAS
+            $rutasIgnorarPermiso = [
+                'metricas/resumen_ajax', 
+                'metricas/graficas_ajax', 
+                'metricas/ranking_ajax', 
+                'metricas/citas_ajax', 
+                'metricas/top_servicios_ajax',
+                'metricas/ventas_cat_ajax'  // <--- AQUÍ ESTÁ EL PERMISO QUE FALTABA
+            ];
+            
+            $ignorarPermiso = in_array($rutaActual, $rutasIgnorarPermiso) && $_SESSION['rol_id'] == 2;
+
             // Validar permiso (probamos con minúscula y con original por si acaso)
-            if (!tiene_permiso($c, $a) && !tiene_permiso($c_raw, $a)) { 
+            if (!$ignorarPermiso && !tiene_permiso($c, $a) && !tiene_permiso($c_raw, $a)) { 
                 ob_clean();
                 if($esAjax) {
                     echo json_encode(['success'=>false, 'message'=>'No tienes permiso para esta acción.']);
