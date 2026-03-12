@@ -51,7 +51,7 @@ $fechaInicioMes = date('Y-m-01');
     .kpi-title-box { display: flex; align-items: center; min-width: 0; }
     .kpi-icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-right: 12px; flex-shrink: 0;}
     
-    /* CORRECCIÓN: Títulos más pequeños y con permiso de bajar de línea (Adiós a los ...) */
+    /* Títulos con permiso de bajar de línea */
     .kpi-name { 
         font-size: 0.75rem; 
         font-weight: 800; 
@@ -59,11 +59,10 @@ $fechaInicioMes = date('Y-m-01');
         text-transform: uppercase; 
         letter-spacing: 0.5px; 
         margin: 0; 
-        white-space: normal; /* Permite bajar de línea */
+        white-space: normal; 
         line-height: 1.2; 
     }
     
-    /* El número grande */
     .kpi-valor-principal { font-size: 3.2rem; font-weight: 800; color: #0f172a; letter-spacing: -1px; margin: 0 0 20px 0; line-height: 1; word-wrap: break-word; }
 
     /* ========================================================
@@ -96,7 +95,7 @@ $fechaInicioMes = date('Y-m-01');
     .empty-chart-container i { font-size: 3rem; margin-bottom: 10px; opacity: 0.3; }
 
     /* ========================================================
-       6. PC (DESKTOP) - AJUSTES DE ESPACIO
+       6. PC (DESKTOP) - ANTI-OVERLAP DEFINITIVO
        ======================================================== */
     @media (min-width: 768px) {
         .dashboard-wrapper { padding: 30px 10px; }
@@ -106,9 +105,9 @@ $fechaInicioMes = date('Y-m-01');
     }
     
     @media (min-width: 1024px) {
-        .master-header { flex-direction: row; justify-content: space-between; align-items: center; }
+        .master-header { flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         
-        /* 1. FILTRO MAESTRO: Etiquetas ARRIBA de las fechas para ahorrar ancho */
+        /* 1. FILTRO MAESTRO COMPACTO */
         .master-filter-box { 
             flex-direction: row !important; 
             align-items: center !important; 
@@ -120,31 +119,33 @@ $fechaInicioMes = date('Y-m-01');
         .master-filter-box .fechas-wrapper { border: none; padding: 0 10px; background: transparent; flex-wrap: nowrap; }
         
         .master-filter-box .date-input-group { 
-            flex-direction: column !important; /* Palabras arriba, input abajo */
+            flex-direction: column !important; 
             align-items: center !important; 
             gap: 2px !important; 
             width: auto; 
         }
         .master-filter-box .date-label { 
             margin: 0 !important; 
-            font-size: 0.55rem !important; /* Etiqueta sutil para ahorrar espacio */
+            font-size: 0.55rem !important; 
             line-height: 1;
         }
-        .master-filter-box .separator { margin-top: 10px; } /* Ajuste sutil para centrar el guión con los inputs */
+        .master-filter-box .separator { margin-top: 10px; } 
 
         .btn-master { flex: 0 0 auto !important; padding: 10px 20px !important; width: max-content !important; }
 
-        /* 2. REJILLAS LÍQUIDAS */
-        .kpi-grid-50 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+        /* 2. REJILLAS LÍQUIDAS MEJORADAS */
+        /* Aumentamos de 420px a 460px para garantizar que la tarjeta nunca sea tan delgada que aplaste el contenido interno */
+        .kpi-grid-50 { grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; }
         
-        /* 3. CABECERAS DE TARJETA: ¡OBLIGATORIAMENTE EN 1 FILA! */
+        /* 3. CABECERAS DE TARJETA BLINDADAS (EL FIX PRINCIPAL) */
         .kpi-card-header { 
             flex-direction: row !important; 
             justify-content: space-between !important; 
             align-items: center !important; 
-            flex-wrap: nowrap !important; 
+            flex-wrap: wrap !important; /* CLAVE: Si la pantalla encoge, permite que el filtro baje sin sobreponerse al texto */
+            gap: 15px !important; /* Garantiza separación si baja de línea */
         }
-        .kpi-title-box { margin-right: 15px; }
+        .kpi-title-box { flex: 1; min-width: 150px; margin-right: 0; } /* Da prioridad al título y lo defiende */
 
         /* 4. FILTROS COMPACTOS EN PC */
         .smart-filter { 
