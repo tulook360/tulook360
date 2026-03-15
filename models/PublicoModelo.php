@@ -907,16 +907,17 @@ class PublicoModelo {
     // ====================================================================
     public function obtenerHistorialPedidos($cli_id) {
         $sql = "SELECT o.ord_id, o.ord_codigo, o.ord_fecha, o.ord_costo_envio,
-                       o.ord_estado, o.ord_tipo_entrega,
-                       (SELECT COUNT(*) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) as items,
-                       
-                       -- CALCULAMOS EL DINERO REAL: Suma de subtotales de productos + costo de envío
-                       (SELECT IFNULL(SUM(odet_subtotal), 0) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) + o.ord_costo_envio as total_dinero_real,
-                       
-                       -- CALCULAMOS LOS PUNTOS REALES: Suma de puntos de canje de los productos
-                       (SELECT IFNULL(SUM(odet_puntos_canje), 0) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) as total_puntos_orden,
-                       
-                       (SELECT COUNT(*) FROM tbl_calificacion 
+                    o.ord_estado, o.ord_tipo_entrega,
+                    o.ord_token_qr, -- <--- ESTA ES LA QUE FALTA
+                    (SELECT COUNT(*) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) as items,
+                    
+                    -- CALCULAMOS EL DINERO REAL
+                    (SELECT IFNULL(SUM(odet_subtotal), 0) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) + o.ord_costo_envio as total_dinero_real,
+                    
+                    -- CALCULAMOS LOS PUNTOS REALES
+                    (SELECT IFNULL(SUM(odet_puntos_canje), 0) FROM tbl_orden_detalle WHERE ord_id = o.ord_id) as total_puntos_orden,
+                    
+                    (SELECT COUNT(*) FROM tbl_calificacion 
                         WHERE cal_origen = 'ORDEN' AND cal_ref_id = o.ord_id) as tiene_calificacion
 
                 FROM tbl_orden o
