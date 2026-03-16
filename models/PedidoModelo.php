@@ -368,4 +368,31 @@ class PedidoModelo {
         $stmt->execute([':sid' => $sucId, ':nid' => $negocioId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    // ====================================================================
+    // OBTENER ALERTAS DE STOCK CRÍTICO PARA EL DASHBOARD (CORREGIDO ERROR PDO)
+    // ====================================================================
+    public function obtenerAlertasBajoStock($sucId) {
+        $sql = "SELECT p.pro_id, p.pro_nombre, p.pro_unidad, 
+                       COALESCE(ps.ps_stock, 0) as ps_stock, 
+                       ps.ps_stock_min,
+                       (SELECT i.img_url FROM tbl_imagen i 
+                        INNER JOIN tbl_img_recurso ir ON i.img_id = ir.img_id 
+                        WHERE ir.img_ref_id = p.pro_id AND ir.img_tipo = 'PRODUCTO' LIMIT 1) as pro_foto
+                FROM tbl_producto p
+                LEFT JOIN tbl_producto_sucursal ps ON p.pro_id = ps.pro_id AND ps.suc_id = :sid1
+                WHERE p.neg_id = (SELECT neg_id FROM tbl_sucursal WHERE suc_id = :sid2)
+                  AND p.pro_estado = 'A'
+                  AND COALESCE(ps.ps_stock, 0) <= COALESCE(ps.ps_stock_min, 5)
+                ORDER BY ps_stock ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        // Le pasamos la pieza a los dos huecos para que PHP no se queje
+        $stmt->execute([
+            ':sid1' => $sucId,
+            ':sid2' => $sucId
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

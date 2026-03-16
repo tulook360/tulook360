@@ -161,5 +161,101 @@ class MetricasModelo {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // ====================================================================
+    // REPORTES MAESTROS: NÓMINA GLOBAL (TODOS LOS EMPLEADOS)
+    // ====================================================================
+    public function reporteComisionesEmpleados($neg_id, $f_ini, $f_fin, $usu_id = null) {
+        // EMPEZAMOS DESDE EL USUARIO, NO DESDE LA CITA (LEFT JOIN)
+        $sql = "SELECT 
+                    u.usu_id,
+                    CONCAT(u.usu_nombres, ' ', u.usu_apellidos) as empleado_nombre,
+                    u.usu_foto,
+                    COALESCE(u.usu_sueldo_base, 0) as sueldo_base,
+                    r.rol_nombre,
+                    COALESCE(s.suc_nombre, 'Global / Sin Sede') as suc_nombre,
+                    COUNT(d.det_id) as total_servicios,
+                    COALESCE(SUM(d.det_precio), 0) as produccion_bruta,
+                    COALESCE(SUM(d.det_comision_monto), 0) as comision_neta
+                FROM tbl_usuario u
+                INNER JOIN tbl_rol r ON u.rol_id = r.rol_id
+                LEFT JOIN tbl_sucursal s ON u.suc_id = s.suc_id
+                -- Solo unimos las citas finalizadas EN EL RANGO de fechas
+                LEFT JOIN tbl_cita_det d ON u.usu_id = d.usu_id 
+                      AND d.det_estado = 'FINALIZADO'
+                      AND DATE(d.det_ini) BETWEEN :ini AND :fin
+                WHERE u.neg_id = :neg_id 
+                  AND u.usu_estado = 'A' 
+                  AND u.rol_id NOT IN (1, 4)"; // Excluimos SuperAdmin y Clientes
+
+        $params = [':neg_id' => $neg_id, ':ini' => $f_ini, ':fin' => $f_fin];
+
+        // Si el dueño filtra un empleado específico:
+        if (!empty($usu_id)) {
+            $sql .= " AND u.usu_id = :uid";
+            $params[':uid'] = $usu_id;
+        }
+
+        $sql .= " GROUP BY u.usu_id, empleado_nombre, u.usu_foto, u.usu_sueldo_base, r.rol_nombre, suc_nombre
+                  ORDER BY r.rol_id ASC, comision_neta DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // OBTENER LISTA DE EMPLEADOS PARA EL FILTRO
+    public function obtenerEmpleadosNegocio($neg_id) {
+        $sql = "SELECT u.usu_id, CONCAT(u.usu_nombres, ' ', u.usu_apellidos) as nombre, r.rol_nombre 
+                FROM tbl_usuario u 
+                INNER JOIN tbl_rol r ON u.rol_id = r.rol_id 
+                WHERE u.neg_id = :nid AND u.usu_estado = 'A' AND u.rol_id NOT IN (1, 4)
+                ORDER BY r.rol_id ASC, nombre ASC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':nid' => $neg_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // ====================================================================
+    // REPORTES MAESTROS: STOCK GLOBAL POR SUCURSALES
+    // ====================================================================
+    public function reporteStockGlobal($neg_id, $suc_id = null) {
+        // Esta consulta agrupa el inventario. Si no se pasa $suc_id, trae de TODAS las sucursales.
+        $sql = "SELECT 
+                    s.suc_id, s.suc_nombre,
+                    p.pro_id, p.pro_nombre, p.pro_codigo, p.pro_unidad,
+                    COALESCE(ps.ps_stock, 0) as stock_fisico,
+                    ps.ps_stock_min,
+                    COALESCE(p.pro_costo_compra, 0) as costo_unitario,
+                    (COALESCE(ps.ps_stock, 0) * COALESCE(p.pro_costo_compra, 0)) as capital_inmovilizado,
+                    (SELECT i.img_url FROM tbl_imagen i 
+                     INNER JOIN tbl_img_recurso ir ON i.img_id = ir.img_id 
+                     WHERE ir.img_ref_id = p.pro_id AND ir.img_tipo = 'PRODUCTO' LIMIT 1) as pro_foto
+                FROM tbl_producto_sucursal ps
+                INNER JOIN tbl_producto p ON ps.pro_id = p.pro_id
+                INNER JOIN tbl_sucursal s ON ps.suc_id = s.suc_id
+                WHERE p.neg_id = :neg_id 
+                  AND ps.ps_estado = 'A' 
+                  AND s.suc_estado = 'A'";
+
+        $params = [':neg_id' => $neg_id];
+
+        if ($suc_id) {
+            $sql .= " AND s.suc_id = :suc_id";
+            $params[':suc_id'] = $suc_id;
+        }
+
+        $sql .= " ORDER BY s.suc_nombre ASC, p.pro_nombre ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
+    // Auxiliar: Listar sucursales para el filtro
+    public function obtenerListaSucursales($neg_id) {
+        $sql = "SELECT suc_id, suc_nombre FROM tbl_sucursal WHERE neg_id = :nid AND suc_estado = 'A' ORDER BY suc_nombre";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':nid' => $neg_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

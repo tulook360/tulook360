@@ -137,7 +137,10 @@ $accionesAjax = [
     'ranking_ajax',
     'citas_ajax',
     'top_servicios_ajax',
-    'ventas_cat_ajax'
+    'ventas_cat_ajax',
+    'mis_ganancias_ajax',
+    'reportes_comisiones_ajax', // <--- NUEVA
+    'reportes_stock_ajax'
 ];
 
 // SI ES AJAX, ASEGURARNOS DE NO CARGAR LAYOUT HTML
@@ -194,17 +197,21 @@ try {
                 header('Location: index.php'); exit;
             }
 
-            // VÍA LIBRE PARA EL DASHBOARD DE MÉTRICAS
+            // VÍA LIBRE PARA EL DASHBOARD DE MÉTRICAS Y BILLETERAS
             $rutasIgnorarPermiso = [
                 'metricas/resumen_ajax', 
                 'metricas/graficas_ajax', 
                 'metricas/ranking_ajax', 
                 'metricas/citas_ajax', 
                 'metricas/top_servicios_ajax',
-                'metricas/ventas_cat_ajax'  // <--- AQUÍ ESTÁ EL PERMISO QUE FALTABA
+                'metricas/ventas_cat_ajax',
+                'especialista/mis_ganancias_ajax',
+                'metricas/reportes_comisiones_ajax', // <--- NUEVA
+                'metricas/reportes_stock_ajax'
             ];
             
-            $ignorarPermiso = in_array($rutaActual, $rutasIgnorarPermiso) && $_SESSION['rol_id'] == 2;
+            // AHORA PERMITIMOS QUE PASE EL ADMIN (2) Y EL ESPECIALISTA (10)
+            $ignorarPermiso = in_array($rutaActual, $rutasIgnorarPermiso) && in_array($_SESSION['rol_id'], [2, 10]);
 
             // Validar permiso (probamos con minúscula y con original por si acaso)
             if (!$ignorarPermiso && !tiene_permiso($c, $a) && !tiene_permiso($c_raw, $a)) { 

@@ -7,17 +7,20 @@ class EspecialistaModelo {
     }
 
     // 1. OBTENER AGENDA
+    // 1. OBTENER AGENDA DEL DÍA (CORREGIDO EL BUG DE MEDIANOCHE)
     public function obtenerAgendaDelDia($usu_id) {
         $hoy = date('Y-m-d');
-        $horaFiltro = date('H:i:s', strtotime('-30 minutes')); 
+        
+        // Usamos Fecha y Hora completa para que no falle en las madrugadas
+        $fechaHoraFiltro = date('Y-m-d H:i:s', strtotime('-30 minutes')); 
 
         $sql = "SELECT 
                     d.det_id, d.serv_id, d.det_ini, d.det_fin, d.det_estado, d.det_precio,
                     s.serv_nombre, s.serv_duracion,
                     c.cita_notas,
                     c.suc_id,
-                    c.cli_id, -- NECESARIO PARA PUNTOS
-                    c.neg_id, -- NECESARIO PARA PUNTOS
+                    c.cli_id,
+                    c.neg_id,
                     u.usu_nombres, u.usu_apellidos, u.usu_foto, u.usu_telefono
                 FROM tbl_cita_det d
                 INNER JOIN tbl_cita c ON d.cita_id = c.cita_id
@@ -25,12 +28,18 @@ class EspecialistaModelo {
                 INNER JOIN tbl_usuario u ON c.cli_id = u.usu_id
                 WHERE d.usu_id = :uid 
                   AND DATE(d.det_ini) = :hoy
-                  AND (d.det_estado = 'EN_ATENCION' OR TIME(d.det_ini) >= :hora)
+                  -- Comparamos la Fecha y Hora exacta contra el filtro
+                  AND (d.det_estado = 'EN_ATENCION' OR d.det_ini >= :fechaHora)
                   AND d.det_estado IN ('CONFIRMADO', 'RESERVADO', 'EN_ATENCION')
                 ORDER BY d.det_ini ASC";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':uid' => $usu_id, ':hoy' => $hoy, ':hora' => $horaFiltro]);
+        $stmt->execute([
+            ':uid' => $usu_id, 
+            ':hoy' => $hoy, 
+            ':fechaHora' => $fechaHoraFiltro
+        ]);
+        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -77,13 +86,13 @@ class EspecialistaModelo {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // 4. ACTUALIZAR ESTADO + DESCUENTO INVENTARIO + ACUMULACIÓN PUNTOS
+    // 4. ACTUALIZAR ESTADO + DESCUENTO INVENTARIO + ACUMULACIÓN PUNTOS + CÁLCULO DE COMISIÓN
     public function actualizarEstado($det_id, $nuevoEstado) {
         try {
             $this->pdo->beginTransaction();
 
-            // OBTENER DATOS CLAVE DE LA CITA
-            $sqlInfo = "SELECT c.suc_id, c.neg_id, c.cli_id, d.serv_id, c.cita_id 
+            // OBTENER DATOS CLAVE DE LA CITA Y EL USUARIO
+            $sqlInfo = "SELECT c.suc_id, c.neg_id, c.cli_id, d.serv_id, c.cita_id, d.det_precio, d.usu_id
                         FROM tbl_cita_det d 
                         INNER JOIN tbl_cita c ON d.cita_id = c.cita_id 
                         WHERE d.det_id = ?";
@@ -98,8 +107,10 @@ class EspecialistaModelo {
             $cli_id  = $info['cli_id'];
             $serv_id = $info['serv_id'];
             $cita_id = $info['cita_id'];
+            $precio_cobrado = floatval($info['det_precio']);
+            $especialista_id = $info['usu_id'];
 
-            // --- NUEVO: VERIFICAR SI ESTA CITA ES UNA PROMOCIÓN ---
+            // VERIFICAR SI ESTA CITA ES UNA PROMOCIÓN
             $sqlCheckPromo = "SELECT COUNT(*) FROM tbl_promocion_historial 
                              WHERE hist_ref_tipo = 'CITA' AND hist_ref_id = ?";
             $stmtCheck = $this->pdo->prepare($sqlCheckPromo);
@@ -151,18 +162,17 @@ class EspecialistaModelo {
                 }
             }
 
-            // --- LÓGICA B: FINALIZAR ATENCIÓN (ACUMULAR PUNTOS) ---
+            // --- LÓGICA B: FINALIZAR ATENCIÓN (ACUMULAR PUNTOS + CALCULAR COMISIÓN) ---
             if ($nuevoEstado === 'FINALIZADO') {
                 
+                // 1. PUNTOS DE FIDELIDAD
                 $sqlConfig = "SELECT fid_activa, fid_dias_vencimiento 
                               FROM tbl_fidelidad_config WHERE neg_id = ?";
                 $stmtConf = $this->pdo->prepare($sqlConfig);
                 $stmtConf->execute([$neg_id]);
                 $config = $stmtConf->fetch(PDO::FETCH_ASSOC);
 
-                // --- MODIFICADO: Solo si la fidelidad está activa Y NO es una promoción ---
                 if ($config && $config['fid_activa'] == 1 && !$esPromocion) {
-                    
                     $sqlPuntos = "SELECT fiditem_puntos FROM tbl_fidelidad_item 
                                   WHERE neg_id = ? AND serv_id = ? AND fiditem_estado = 'A'";
                     $stmtPts = $this->pdo->prepare($sqlPuntos);
@@ -199,11 +209,39 @@ class EspecialistaModelo {
                         }
                     }
                 }
-            }
 
-            // C. CAMBIAR ESTADO DE LA CITA
-            $sqlEstado = "UPDATE tbl_cita_det SET det_estado = :est WHERE det_id = :id";
-            $this->pdo->prepare($sqlEstado)->execute([':est' => $nuevoEstado, ':id' => $det_id]);
+                // ========================================================
+                // 2. NUEVO: CONGELAMIENTO DE COMISIÓN
+                // ========================================================
+                
+                // Obtener el porcentaje actual de comisión del empleado
+                $sqlPorcentaje = "SELECT usu_comision_porcentaje FROM tbl_usuario WHERE usu_id = ?";
+                $stmtPorc = $this->pdo->prepare($sqlPorcentaje);
+                $stmtPorc->execute([$especialista_id]);
+                $porcentaje = floatval($stmtPorc->fetchColumn());
+
+                // Calcular el monto en dólares de la comisión
+                $montoComision = ($precio_cobrado * $porcentaje) / 100;
+
+                // Actualizar el estado de la cita Y GUARDAR LA COMISIÓN CONGELADA
+                $sqlEstado = "UPDATE tbl_cita_det 
+                              SET det_estado = :est, 
+                                  det_comision_porc = :porc, 
+                                  det_comision_monto = :monto 
+                              WHERE det_id = :id";
+                
+                $this->pdo->prepare($sqlEstado)->execute([
+                    ':est' => $nuevoEstado, 
+                    ':porc' => $porcentaje,
+                    ':monto' => $montoComision,
+                    ':id' => $det_id
+                ]);
+
+            } else {
+                // SI NO ES 'FINALIZADO', SOLO CAMBIAMOS EL ESTADO NORMALMENTE
+                $sqlEstado = "UPDATE tbl_cita_det SET det_estado = :est WHERE det_id = :id";
+                $this->pdo->prepare($sqlEstado)->execute([':est' => $nuevoEstado, ':id' => $det_id]);
+            }
 
             $this->pdo->commit();
             return true;
@@ -212,6 +250,40 @@ class EspecialistaModelo {
             $this->pdo->rollBack();
             throw $e; 
         }
+    }
+
+    // 5. OBTENER TOTALES DE COMISIONES
+    public function obtenerMetricasComisiones($usu_id, $f_ini, $f_fin) {
+        $sql = "SELECT 
+                    COUNT(det_id) as total_servicios,
+                    SUM(det_precio) as total_generado,
+                    SUM(det_comision_monto) as total_comision
+                FROM tbl_cita_det 
+                WHERE usu_id = :uid 
+                  AND det_estado = 'FINALIZADO'
+                  AND DATE(det_ini) BETWEEN :ini AND :fin";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uid' => $usu_id, ':ini' => $f_ini, ':fin' => $f_fin]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // 6. OBTENER HISTORIAL DETALLADO
+    public function obtenerHistorialComisiones($usu_id, $f_ini, $f_fin) {
+        $sql = "SELECT 
+                    d.det_ini,
+                    s.serv_nombre,
+                    d.det_precio,
+                    d.det_comision_porc,
+                    d.det_comision_monto
+                FROM tbl_cita_det d
+                INNER JOIN tbl_servicio s ON d.serv_id = s.serv_id
+                WHERE d.usu_id = :uid 
+                  AND d.det_estado = 'FINALIZADO'
+                  AND DATE(d.det_ini) BETWEEN :ini AND :fin
+                ORDER BY d.det_ini DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':uid' => $usu_id, ':ini' => $f_ini, ':fin' => $f_fin]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 ?>

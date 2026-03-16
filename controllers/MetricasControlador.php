@@ -110,4 +110,74 @@ class MetricasControlador {
         }
         exit;
     }
+
+
+    public function reportes() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        
+        if (!isset($_SESSION['usuario_id']) || $_SESSION['rol_id'] != 2) {
+            header('Location: ' . ruta_accion('auth', 'panel'));
+            exit;
+        }
+
+        global $pageTitle;
+        $pageTitle = "Reportes y Nómina";
+
+        $db = new Database();
+        $modelo = new MetricasModelo($db->getConnection());
+        
+        // Datos para los filtros
+        $sucursales = $modelo->obtenerListaSucursales($this->negocio_id);
+        $empleados = $modelo->obtenerEmpleadosNegocio($this->negocio_id); // <-- NUEVO
+
+        require __DIR__ . '/../views/metricas/reportes.php';
+    }
+
+    public function reportes_comisiones_ajax() {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        try {
+            $f_ini = $_GET['f_ini'] ?? date('Y-m-01');
+            $f_fin = $_GET['f_fin'] ?? date('Y-m-d');
+            $usu_id = !empty($_GET['usu_id']) ? intval($_GET['usu_id']) : null; // <-- NUEVO FILTRO
+
+            $datos = $this->modelo->reporteComisionesEmpleados($this->negocio_id, $f_ini, $f_fin, $usu_id);
+
+            // --- MAGIA MATEMÁTICA: CÁLCULO DE MESES ---
+            $fecha1 = new DateTime($f_ini);
+            $fecha2 = new DateTime($f_fin);
+            $mesesMultiplicador = (($fecha2->format('Y') - $fecha1->format('Y')) * 12) + ($fecha2->format('m') - $fecha1->format('m')) + 1;
+            if ($mesesMultiplicador < 1) $mesesMultiplicador = 1; 
+
+            foreach ($datos as &$empleado) {
+                $empleado['sueldo_base'] = floatval($empleado['sueldo_base']) * $mesesMultiplicador;
+            }
+
+            echo json_encode(['success' => true, 'datos' => $datos, 'meses_calculados' => $mesesMultiplicador]);
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // ====================================================================
+    // AJAX: REPORTE DE INVENTARIO POR SUCURSAL
+    // ====================================================================
+    public function reportes_stock_ajax() {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        try {
+            $suc_id = !empty($_GET['suc_id']) ? intval($_GET['suc_id']) : null;
+
+            $datos = $this->modelo->reporteStockGlobal($this->negocio_id, $suc_id);
+            echo json_encode(['success' => true, 'datos' => $datos]);
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
 }

@@ -75,4 +75,36 @@ class EspecialistaControlador {
         }
         exit;
     }
+
+    // ACCIÓN AJAX: OBTENER GANANCIAS PARA EL DASHBOARD
+    public function mis_ganancias_ajax() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['usuario_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Sesión no válida']); exit;
+        }
+
+        $usu_id = $_SESSION['usuario_id'];
+        $f_ini = $_GET['f_ini'] ?? date('Y-m-01');
+        $f_fin = $_GET['f_fin'] ?? date('Y-m-d');
+
+        try {
+            $resumen = $this->modelo->obtenerMetricasComisiones($usu_id, $f_ini, $f_fin);
+            $historial = $this->modelo->obtenerHistorialComisiones($usu_id, $f_ini, $f_fin);
+
+            echo json_encode([
+                'success' => true,
+                'totales' => [
+                    'comision' => floatval($resumen['total_comision'] ?? 0),
+                    'servicios' => intval($resumen['total_servicios'] ?? 0),
+                    'generado' => floatval($resumen['total_generado'] ?? 0)
+                ],
+                'historial' => $historial
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error al cargar ganancias']);
+        }
+        exit;
+    }
 }
